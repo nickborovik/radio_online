@@ -29,7 +29,7 @@ KHARKOV_STUDIO_DIR = os.path.join(
     '{}'.format(NEXT_DAY.strftime('%m-%Y'))
 )
 
-FILE_NAME = '08-2020 Расписание онлайн вещания (август).xlsx'
+FILE_NAME = '08-2020 Расписание онлайн вещания (август).xlsx'
 EXCEL_PAGE_NAME = (datetime.datetime.now().date() + datetime.timedelta(days=1)).strftime('%-d.%m')
 
 MUZBLOCKS = [
@@ -63,31 +63,31 @@ MUZBLOCKS = [
 
 
 main_audio_files = {
-    '900 секунд доброты': '900 sekund dobroti_228_020820.mp3\n',
-    'БА': 'RUS_BST_0420_20200804_1800_BR_.mp3\n',
-    'Библейские искатели': 'a.mp3\n',
-    'Вивчаємо Біблію разом': 'Bible study_{}_{}.mp3\n'.format('000', CURRENT_DAY.strftime('%d%m%y')),
-    'ВЦП': 'a.mp3\n',
-    'Герои': 'a.mp3\n',
+    '900 секунд доброты': '900 sekund dobroti_228_020820.mp3',
+    'БА': 'RUS_BST_0420_20200804_1800_BR_.mp3',
+    'Библейские искатели': 'a.mp3',
+    'Вивчаємо Біблію разом': 'Bible study_{}_{}.mp3'.format('000', CURRENT_DAY.strftime('%d%m%y')),
+    'ВЦП': 'a.mp3',
+    'Герои': 'a.mp3',
     'ГОДИНА БОЖОГО СЛОВА': 'Online radio blok',
-    'Голос друга': 'a.mp3\n',
-    'Джерельце': 'a.mp3\n',
-    'ЖКОЕ': 'a.mp3\n',
-    'ЖН': 'a.mp3\n',
-    'Калейдоскоп': 'a.mp3\n',
-    'МН': 'RUS_BOH_{}_{}_1800_BR_.mp3\n',
-    'Ответственность': 'a.mp3\n',
-    'Погляд ': 'a.mp3\n',
-    'Свет жизни': 'a.mp3\n',
-    'Серебро': 'RUS_SIL_0382_20200805_1930_BR_.mp3\n',
-    'Слово на сегодня': 'a.mp3\n',
-    'Стежинка': 'a.mp3\n',
-    'Суламита': 'RUS_SUL_1107_20200805_1845_BR_.mp3\n',
-    'Табор': 'Tabor uhodit v nebo_412_040820.mp3\n',
-    'Тихие воды': 'a.mp3\n',
-    'Хлеб жизни': 'RUS_BLR_0378_20200804_1815_BR_.mp3\n',
-    'Шалом': 'a.mp3\n',
-    'Шанс // ГВЛ': 'a.mp3\n',
+    'Голос друга': 'a.mp3',
+    'Джерельце': 'a.mp3',
+    'ЖКОЕ': 'a.mp3',
+    'ЖН': 'a.mp3',
+    'Калейдоскоп': 'a.mp3',
+    'МН': 'RUS_BOH_{}_{}_1800_BR_.mp3',
+    'Ответственность': 'a.mp3',
+    'Погляд ': 'a.mp3',
+    'Свет жизни': 'a.mp3',
+    'Серебро': 'RUS_SIL_0382_20200805_1930_BR_.mp3',
+    'Слово на сегодня': 'a.mp3',
+    'Стежинка': 'a.mp3',
+    'Суламита': 'RUS_SUL_1107_20200805_1845_BR_.mp3',
+    'Табор': 'Tabor uhodit v nebo_412_040820.mp3',
+    'Тихие воды': 'a.mp3',
+    'Хлеб жизни': 'RUS_BLR_0378_20200804_1815_BR_.mp3',
+    'Шалом': 'a.mp3',
+    'Шанс // ГВЛ': 'a.mp3',
 
 }
 print(EXCEL_PAGE_NAME)
@@ -103,14 +103,14 @@ def main():
             if 32 > i >= 28 or 66 > i >= 61:
 
                 if sheet.cell_value(i, 5) == 'ГОДИНА БОЖОГО СЛОВА':
-                    mp3_file_name = '{} {}.mp3\n'.format(main_audio_files[sheet.cell_value(i, 5)], str(round(sheet.cell_value(i, 4))))
+                    mp3_file_name = '{} {}.mp3'.format(main_audio_files[sheet.cell_value(i, 5)], str(round(sheet.cell_value(i, 4))))
                 else:
                     mp3_file_name = main_audio_files[sheet.cell_value(i, 5)]
                 load_file_name = sheet.cell_value(i, 5)
                 load_file_number = ''
 
             elif sheet.cell_value(i, 5) == 'муз.блок':
-                mp3_file_name = '{}\n'.format(MUZBLOCKS[random.randrange(0, len(MUZBLOCKS))])
+                mp3_file_name = '{}'.format(MUZBLOCKS[random.randrange(0, len(MUZBLOCKS)-1)])
                 load_file_name = 'Muzblock'
                 load_file_number = ''
 
@@ -120,14 +120,14 @@ def main():
                     load_file_number = str(round(sheet.cell_value(i, 4)))
                 except:
                     load_file_number = str(sheet.cell_value(i, 4))
-                mp3_file_name = '{} {}.mp3\n'.format(load_file_name, load_file_number)
+                mp3_file_name = '{} {}.mp3'.format(load_file_name, load_file_number)
                 mp3_file_name = re.sub(r'\s\s', ' ', mp3_file_name)
-                # audio_data = MP3(os.path.join(MEDIA_DIR, mp3_file_name))
-                audio_data = MP3('TBS 0011.mp3')
+                audio_data = MP3(os.path.join(MEDIA_DIR, mp3_file_name))
+                # audio_data = MP3('TBS 0011.mp3')
 
             file_length = '#EXTINF:{},{} {}\n'.format(int(audio_data.info.length), load_file_name, load_file_number)
             file_data.append(file_length)
-            file_data.append(os.path.join(MEDIA_DIR, mp3_file_name))
+            file_data.append(os.path.join(MEDIA_DIR, mp3_file_name, '\n'))
 
     file_data.append('playlist {}.command'.format(NEXT_PLAYLIST_DATE))
 
