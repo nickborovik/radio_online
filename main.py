@@ -17,6 +17,7 @@ NEXT_PLAYLIST_DATE = (CURRENT_DAY + datetime.timedelta(days=2)).strftime('%d_%m_
 # -------------------------------------------------------------------------------------------------
 BASE_DIR = os.getcwd()
 MEDIA_DIR = os.path.join(BASE_DIR, 'Archive_2018')
+PLAYLIST_DIR = os.path.join('D:', 'Playlist Radioboss')
 
 KIEV_STUDIO_DIR_TODAY = os.path.join(
     BASE_DIR,
@@ -119,7 +120,7 @@ def get_mp3_file_length(media_dir, mp3_file_name):
 
 
 def write_playlist_to_file(date, file_data):
-    with open(f'playlist for {date}.m3u8', 'w') as write_file:
+    with open(os.path.join(PLAYLIST_DIR, f'playlist for {date}.m3u8'), 'w') as write_file:
         write_file.writelines(file_data)
     print('Плейлист на {} готов!'.format(date))
 
