@@ -46,7 +46,7 @@ KHARKOV_STUDIO_DIR_TOMORROW = os.path.join(
 # EXCEL settings
 # -------------------------------------------------------------------------------------------------
 FILE_NAME = '08-2020 Расписание онлайн вещания (август).xlsx'
-EXCEL_PAGE_NAME = (datetime.datetime.now().date() + datetime.timedelta(days=1)).strftime('%-d.%m')
+EXCEL_PAGE_NAME = ((datetime.datetime.now() + datetime.timedelta(days=1)).date()).strftime('%-d.%m')
 
 
 # NAMES FOR FILES
