@@ -144,7 +144,7 @@ def main():
             if 33 > i >= 28 or 66 > i >= 61:
                 if sheet.cell_value(i, 5) == 'ГОДИНА БОЖОГО СЛОВА':
                     load_file_number = str(round(sheet.cell_value(i, 4)))
-                    mp3_file_name = f'Online radio block {load_file_number}.mp3'
+                    mp3_file_name = f'Online radio blok {load_file_number}.mp3'
                     load_file_name = 'ГОДИНА БОЖОГО СЛОВА'
                 else:
                     continue
