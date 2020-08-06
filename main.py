@@ -20,10 +20,10 @@ MONTH = ['январь', 'февраль', 'март', 'апрель', 'май',
 # -------------------------------------------------------------------------------------------------
 BASE_DIR = os.getcwd()
 MEDIA_DIR = os.path.join(BASE_DIR, 'Archive_2018')
-# PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
+PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
 
 # TEST CASE
-PLAYLIST_DIR = BASE_DIR
+# PLAYLIST_DIR = BASE_DIR
 
 # KIEV_STUDIO_DIR_TODAY = os.path.join(
 #     BASE_DIR,
@@ -171,10 +171,10 @@ def main():
 
                 mp3_file_name = f'{load_file_name} {load_file_number}.mp3'
                 mp3_file_name = re.sub(r'\s\s', ' ', mp3_file_name)
-                # mp3_length = get_mp3_file_length(MEDIA_DIR, mp3_file_name)
+                mp3_length = get_mp3_file_length(MEDIA_DIR, mp3_file_name)
 
                 # TEST CASE
-                mp3_length = 960
+                # mp3_length = 960
 
             full_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
