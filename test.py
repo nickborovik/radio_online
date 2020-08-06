@@ -1,8 +1,7 @@
 import os
-from openpyxl import load_workbook
+import datetime
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+today = datetime.datetime.today()
 
-wb = load_workbook('./08-2020 Расписание онлайн вещания (август).xlsx')
-sheet = wb.get_sheet_by_name('1.08')
-print(sheet)
+# print(today.strftime('%B'))
+print(today)

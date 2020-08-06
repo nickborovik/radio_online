@@ -7,47 +7,52 @@ from mutagen.mp3 import MP3
 
 # DATES
 # -------------------------------------------------------------------------------------------------
-CURRENT_DAY = datetime.datetime.now().date()
+CURRENT_DAY = datetime.datetime.today().date()
 NEXT_DAY = CURRENT_DAY + datetime.timedelta(days=1)
 
 PLAYLIST_DATE_FOR_TOMORROW = (CURRENT_DAY + datetime.timedelta(days=1)).strftime('%d%m%Y')
 NEXT_PLAYLIST_DATE = (CURRENT_DAY + datetime.timedelta(days=2)).strftime('%d_%m_%Y')
 
+MONTH = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
+         'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь']
+
 # DIRS
 # -------------------------------------------------------------------------------------------------
 BASE_DIR = os.getcwd()
 MEDIA_DIR = os.path.join(BASE_DIR, 'Archive_2018')
-PLAYLIST_DIR = os.path.join('D:', 'Playlist Radioboss')
+PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
 
-KIEV_STUDIO_DIR_TODAY = os.path.join(
-    BASE_DIR,
-    'Kievskaya Studia',
-    '!{}'.format(CURRENT_DAY.strftime('%m %Y'))
-)
-
-KIEV_STUDIO_DIR_TOMORROW = os.path.join(
-    BASE_DIR,
-    'Kievskaya Studia',
-    '!{}'.format(NEXT_DAY.strftime('%m %Y'))
-)
-
-KHARKOV_STUDIO_DIR_TODAY = os.path.join(
-    BASE_DIR,
-    '1 SREDNIE VOLNI ONLINE',
-    '{}'.format(CURRENT_DAY.strftime('%m-%Y'))
-)
-
-KHARKOV_STUDIO_DIR_TOMORROW = os.path.join(
-    BASE_DIR,
-    '1 SREDNIE VOLNI ONLINE',
-    '{}'.format(NEXT_DAY.strftime('%m-%Y'))
-)
+# KIEV_STUDIO_DIR_TODAY = os.path.join(
+#     BASE_DIR,
+#     'Kievskaya Studia',
+#     '!{}'.format(CURRENT_DAY.strftime('%m %Y'))
+# )
+#
+# KIEV_STUDIO_DIR_TOMORROW = os.path.join(
+#     BASE_DIR,
+#     'Kievskaya Studia',
+#     '!{}'.format(NEXT_DAY.strftime('%m %Y'))
+# )
+#
+# KHARKOV_STUDIO_DIR_TODAY = os.path.join(
+#     BASE_DIR,
+#     '1 SREDNIE VOLNI ONLINE',
+#     '{}'.format(CURRENT_DAY.strftime('%m-%Y'))
+# )
+#
+# KHARKOV_STUDIO_DIR_TOMORROW = os.path.join(
+#     BASE_DIR,
+#     '1 SREDNIE VOLNI ONLINE',
+#     '{}'.format(NEXT_DAY.strftime('%m-%Y'))
+# )
 
 
 # EXCEL settings
 # -------------------------------------------------------------------------------------------------
-FILE_NAME = os.path.join(BASE_DIR, '08-2020 Расписание онлайн вещания (август).xlsx')
-EXCEL_PAGE_NAME = ((datetime.datetime.now() + datetime.timedelta(days=1)).date()).strftime('%-d.%m')
+
+EXCEL_FILE_NAME = f'{CURRENT_DAY.strftime("%m-%Y")} Расписание онлайн вещания ({MONTH[CURRENT_DAY.month - 1]}).xlsx'
+FULL_EXCEL_FILE_PATH = os.path.join(BASE_DIR, EXCEL_FILE_NAME)
+EXCEL_PAGE_NAME = str((datetime.datetime.today() + datetime.timedelta(days=1)).strftime('%-d.%m'))
 
 
 # NAMES FOR FILES
@@ -81,33 +86,33 @@ MUZBLOCKS = [
     'muzblok_26_time_16.16.mp3',
 ]
 
-MAIN_AUDIO_FILES = {
-    '900 секунд доброты': '900 sekund dobroti_{}.mp3',
-    'БА': 'RUS_BST_0420_20200804_1800_BR_.mp3',
-    'Библейские искатели': 'a.mp3',
-    'Вивчаємо Біблію разом': 'Bible study_{}.mp3',
-    'ВЦП': 'a.mp3',
-    'Герои': 'a.mp3',
-    'ГОДИНА БОЖОГО СЛОВА': 'Online radio blok {}.mp3',
-    'Голос друга': 'a.mp3',
-    'Джерельце': 'a.mp3',
-    'ЖКОЕ': 'a.mp3',
-    'ЖН': 'a.mp3',
-    'Калейдоскоп': 'a.mp3',
-    'МН': 'RUS_BOH_{}_{}_1800_BR_.mp3',
-    'Ответственность': 'a.mp3',
-    'Погляд ': 'a.mp3',
-    'Свет жизни': 'a.mp3',
-    'Серебро': 'RUS_SIL_0382_20200805_1930_BR_.mp3',
-    'Слово на сегодня': 'a.mp3',
-    'Стежинка': 'a.mp3',
-    'Суламита': 'RUS_SUL_1107_20200805_1845_BR_.mp3',
-    'Табор': 'Tabor uhodit v nebo_412_040820.mp3',
-    'Тихие воды': 'a.mp3',
-    'Хлеб жизни': 'RUS_BLR_0378_20200804_1815_BR_.mp3',
-    'Шалом': 'a.mp3',
-    'Шанс // ГВЛ': 'a.mp3',
-}
+# MAIN_AUDIO_FILES = {
+#     '900 секунд доброты': '900 sekund dobroti_{}.mp3',
+#     'БА': 'RUS_BST_0420_20200804_1800_BR_.mp3',
+#     'Библейские искатели': 'a.mp3',
+#     'Вивчаємо Біблію разом': 'Bible study_{}.mp3',
+#     'ВЦП': 'a.mp3',
+#     'Герои': 'a.mp3',
+#     'ГОДИНА БОЖОГО СЛОВА': 'Online radio blok {}.mp3',
+#     'Голос друга': 'a.mp3',
+#     'Джерельце': 'a.mp3',
+#     'ЖКОЕ': 'a.mp3',
+#     'ЖН': 'a.mp3',
+#     'Калейдоскоп': 'a.mp3',
+#     'МН': 'RUS_BOH_{}_{}_1800_BR_.mp3',
+#     'Ответственность': 'a.mp3',
+#     'Погляд ': 'a.mp3',
+#     'Свет жизни': 'a.mp3',
+#     'Серебро': 'RUS_SIL_0382_20200805_1930_BR_.mp3',
+#     'Слово на сегодня': 'a.mp3',
+#     'Стежинка': 'a.mp3',
+#     'Суламита': 'RUS_SUL_1107_20200805_1845_BR_.mp3',
+#     'Табор': 'Tabor uhodit v nebo_412_040820.mp3',
+#     'Тихие воды': 'a.mp3',
+#     'Хлеб жизни': 'RUS_BLR_0378_20200804_1815_BR_.mp3',
+#     'Шалом': 'a.mp3',
+#     'Шанс // ГВЛ': 'a.mp3',
+# }
 
 def get_excel_info(file_name, excel_page_name):
     workbook = xlrd.open_workbook(file_name)
@@ -122,12 +127,12 @@ def get_mp3_file_length(media_dir, mp3_file_name):
 def write_playlist_to_file(date, file_data):
     with open(os.path.join(PLAYLIST_DIR, f'playlist for {date}.m3u8'), 'w') as write_file:
         write_file.writelines(file_data)
-    print('Плейлист на {} готов!'.format(date))
+    print(f'Плейлист на {date} готов и находится в папке \n{PLAYLIST_DIR}')
 
 
 def main():
     file_data = ['#EXTM3U\n']
-    sheet = get_excel_info(FILE_NAME, EXCEL_PAGE_NAME)
+    sheet = get_excel_info(FULL_EXCEL_FILE_PATH, EXCEL_PAGE_NAME)
 
     for i in range(sheet.nrows):
         if i < 3:
