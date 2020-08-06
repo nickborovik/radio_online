@@ -145,7 +145,7 @@ def main():
                 if sheet.cell_value(i, 5) == 'ГОДИНА БОЖОГО СЛОВА':
                     load_file_number = str(round(sheet.cell_value(i, 4)))
                     mp3_file_name = f'Online radio blok {load_file_number}.mp3'
-                    load_file_name = 'ГОДИНА БОЖОГО СЛОВА'
+                    load_file_name = 'Online radio blok'
                 else:
                     continue
                 # mp3_file_name = MAIN_AUDIO_FILES[sheet.cell_value(i, 5)]
