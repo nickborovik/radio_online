@@ -52,7 +52,7 @@ PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
 
 EXCEL_FILE_NAME = f'{CURRENT_DAY.strftime("%m-%Y")} Расписание онлайн вещания ({MONTH[CURRENT_DAY.month - 1]}).xlsx'
 FULL_EXCEL_FILE_PATH = os.path.join(BASE_DIR, EXCEL_FILE_NAME)
-EXCEL_PAGE_NAME = str((datetime.datetime.today() + datetime.timedelta(days=1)).strftime('%-d.%m'))
+EXCEL_PAGE_NAME = f'{NEXT_DAY.strftime("%-d")}.{NEXT_DAY.strftime("%m")}'
 
 
 # NAMES FOR FILES
