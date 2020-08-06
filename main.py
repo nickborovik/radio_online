@@ -5,33 +5,52 @@ import re
 import random
 from mutagen.mp3 import MP3
 
+# DATES
+# -------------------------------------------------------------------------------------------------
 CURRENT_DAY = datetime.datetime.now().date()
 NEXT_DAY = CURRENT_DAY + datetime.timedelta(days=1)
 
-PLAYLIST_DATE_FOR_TOMORROW = (CURRENT_DAY + datetime.timedelta(days=1)).strftime('%d_%m_%Y')
+PLAYLIST_DATE_FOR_TOMORROW = (CURRENT_DAY + datetime.timedelta(days=1)).strftime('%d%m%Y')
 NEXT_PLAYLIST_DATE = (CURRENT_DAY + datetime.timedelta(days=2)).strftime('%d_%m_%Y')
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# DIRS
+# -------------------------------------------------------------------------------------------------
+BASE_DIR = os.getcwd()
 MEDIA_DIR = os.path.join(BASE_DIR, 'Archive_2018')
 
-KIEV_STUDIO_DIR = os.path.join(
+KIEV_STUDIO_DIR_TODAY = os.path.join(
     BASE_DIR,
-    'INTERNET RADIO',
     'Kievskaya Studia',
-    '!{}'.format(NEXT_DAY.strftime('%m-%Y'))
+    '!{}'.format(CURRENT_DAY.strftime('%m %Y'))
 )
 
-KHARKOV_STUDIO_DIR = os.path.join(
+KIEV_STUDIO_DIR_TOMORROW = os.path.join(
     BASE_DIR,
-    'INTERNET RADIO',
-    'KharkovTWR',
+    'Kievskaya Studia',
+    '!{}'.format(NEXT_DAY.strftime('%m %Y'))
+)
+
+KHARKOV_STUDIO_DIR_TODAY = os.path.join(
+    BASE_DIR,
+    '1 SREDNIE VOLNI ONLINE',
+    '{}'.format(CURRENT_DAY.strftime('%m-%Y'))
+)
+
+KHARKOV_STUDIO_DIR_TOMORROW = os.path.join(
+    BASE_DIR,
     '1 SREDNIE VOLNI ONLINE',
     '{}'.format(NEXT_DAY.strftime('%m-%Y'))
 )
 
+
+# EXCEL settings
+# -------------------------------------------------------------------------------------------------
 FILE_NAME = '08-2020 Расписание онлайн вещания (август).xlsx'
 EXCEL_PAGE_NAME = (datetime.datetime.now().date() + datetime.timedelta(days=1)).strftime('%-d.%m')
 
+
+# NAMES FOR FILES
+# -------------------------------------------------------------------------------------------------
 MUZBLOCKS = [
     'muzblok_01_time_12.15.mp3',
     'muzblok_02_time_14.43.mp3',
@@ -61,15 +80,14 @@ MUZBLOCKS = [
     'muzblok_26_time_16.16.mp3',
 ]
 
-
-main_audio_files = {
-    '900 секунд доброты': '900 sekund dobroti_228_020820.mp3',
+MAIN_AUDIO_FILES = {
+    '900 секунд доброты': '900 sekund dobroti_{}.mp3',
     'БА': 'RUS_BST_0420_20200804_1800_BR_.mp3',
     'Библейские искатели': 'a.mp3',
-    'Вивчаємо Біблію разом': 'Bible study_{}_{}.mp3'.format('000', CURRENT_DAY.strftime('%d%m%y')),
+    'Вивчаємо Біблію разом': 'Bible study_{}.mp3',
     'ВЦП': 'a.mp3',
     'Герои': 'a.mp3',
-    'ГОДИНА БОЖОГО СЛОВА': 'Online radio blok',
+    'ГОДИНА БОЖОГО СЛОВА': 'Online radio blok {}.mp3',
     'Голос друга': 'a.mp3',
     'Джерельце': 'a.mp3',
     'ЖКОЕ': 'a.mp3',
@@ -88,55 +106,64 @@ main_audio_files = {
     'Хлеб жизни': 'RUS_BLR_0378_20200804_1815_BR_.mp3',
     'Шалом': 'a.mp3',
     'Шанс // ГВЛ': 'a.mp3',
-
 }
-print(EXCEL_PAGE_NAME)
+
+def get_excel_info(file_name, excel_page_name):
+    workbook = xlrd.open_workbook(file_name)
+    sheet = workbook.sheet_by_name(excel_page_name)
+    return sheet
+
+def get_mp3_file_length(media_dir, mp3_file_name):
+    mp3_data = MP3(os.path.join(media_dir, mp3_file_name))
+    return int(mp3_data.info.length)
+
+
+def write_playlist_to_file(date, file_data):
+    with open(f'playlist for {date}.m3u8', 'w') as write_file:
+        write_file.writelines(file_data)
+    print('Плейлист на {} готов!'.format(date))
+
 
 def main():
     file_data = ['#EXTM3U\n']
-    workbook = xlrd.open_workbook(FILE_NAME)
-    sheet = workbook.sheet_by_name(EXCEL_PAGE_NAME)
+    sheet = get_excel_info(FILE_NAME, EXCEL_PAGE_NAME)
+
     for i in range(sheet.nrows):
         if i < 3:
             continue
         else:
-            if 32 > i >= 28 or 66 > i >= 61:
+            if 33 > i >= 28 or 66 > i >= 61:
+                continue
+                # mp3_file_name = MAIN_AUDIO_FILES[sheet.cell_value(i, 5)]
+                # load_file_name = sheet.cell_value(i, 5)
+                # load_file_number = ''
 
-                if sheet.cell_value(i, 5) == 'ГОДИНА БОЖОГО СЛОВА':
-                    mp3_file_name = '{} {}.mp3'.format(main_audio_files[sheet.cell_value(i, 5)], str(round(sheet.cell_value(i, 4))))
-                else:
-                    mp3_file_name = main_audio_files[sheet.cell_value(i, 5)]
-                load_file_name = sheet.cell_value(i, 5)
-                load_file_number = ''
-
-            elif sheet.cell_value(i, 5) == 'муз.блок':
-                mp3_file_name = '{}'.format(MUZBLOCKS[random.randrange(0, len(MUZBLOCKS)-1)])
+            if sheet.cell_value(i, 5) == 'муз.блок':
+                muzblock_index = random.randrange(0, len(MUZBLOCKS))
+                mp3_file_name = MUZBLOCKS[muzblock_index]
                 load_file_name = 'Muzblock'
-                load_file_number = ''
+                load_file_number = muzblock_index + 1
 
             else:
-                load_file_name = str(sheet.cell_value(i, 3)) + str()
+                load_file_name = str(sheet.cell_value(i, 3))
                 try:
                     load_file_number = str(round(sheet.cell_value(i, 4)))
                 except:
                     load_file_number = str(sheet.cell_value(i, 4))
-                mp3_file_name = '{} {}.mp3'.format(load_file_name, load_file_number)
+                mp3_file_name = f'{load_file_name} {load_file_number}.mp3'
                 mp3_file_name = re.sub(r'\s\s', ' ', mp3_file_name)
-                audio_data = MP3(os.path.join(MEDIA_DIR, mp3_file_name))
-                # audio_data = MP3('TBS 0011.mp3')
+                mp3_length = get_mp3_file_length(MEDIA_DIR, mp3_file_name)
+                # mp3_length = get_mp3_file_length(BASE_DIR, 'TBS 0011.mp3')
 
-            file_length = '#EXTINF:{},{} {}\n'.format(int(audio_data.info.length), load_file_name, load_file_number)
-            file_data.append(file_length)
-            file_data.append(os.path.join(MEDIA_DIR, mp3_file_name, '\n'))
+            full_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
-    file_data.append('playlist {}.command'.format(NEXT_PLAYLIST_DATE))
+            file_info = f'#EXTINF:{mp3_length},{load_file_name} - {load_file_number}\n'
+            file_data.append(file_info)
+            file_data.append(f'{full_file_path}\n')
 
-    with open('playlist for {}.m3u8'.format(PLAYLIST_DATE_FOR_TOMORROW), 'w') as write_file:
-        write_file.writelines(file_data)
-
-    print('Плейлист на {} готов!'.format(PLAYLIST_DATE_FOR_TOMORROW))
+    file_data.append(f'playlist {NEXT_PLAYLIST_DATE}.command')
+    write_playlist_to_file(PLAYLIST_DATE_FOR_TOMORROW, file_data)
 
 
 if __name__ == '__main__':
     main()
-
