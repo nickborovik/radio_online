@@ -150,13 +150,14 @@ def main():
                     load_file_number = str(round(sheet.cell_value(i, 4)))
                 except:
                     load_file_number = str(sheet.cell_value(i, 4))
+                    if 'Лекция' in load_file_number:
+                        load_file_number = re.sub(r'Лекция', 'L', load_file_number)
+                    if 'М.В.' in load_file_number:
+                        load_file_number = re.sub(r'M\.B\.', 'M', load_file_number)
 
-                if 'Лекция' in load_file_number:
-                    load_file_number = re.sub(r'Лекция', 'L', load_file_number)
                 mp3_file_name = f'{load_file_name} {load_file_number}.mp3'
                 mp3_file_name = re.sub(r'\s\s', ' ', mp3_file_name)
                 mp3_length = get_mp3_file_length(MEDIA_DIR, mp3_file_name)
-                # mp3_length = get_mp3_file_length(BASE_DIR, 'TBS 0011.mp3')
 
             full_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
