@@ -46,6 +46,7 @@ KHARKOV_STUDIO_DIR_TODAY = os.path.join(
 
 KHARKOV_STUDIO_DIR_TOMORROW = os.path.join(
     BASE_DIR,
+    'KharkovTWR',
     '1 SREDNIE VOLNI ONLINE',
     f'{NEXT_DAY.strftime("%m-%Y")}'
 )
