@@ -20,7 +20,10 @@ MONTH = ['январь', 'февраль', 'март', 'апрель', 'май',
 # -------------------------------------------------------------------------------------------------
 BASE_DIR = os.getcwd()
 MEDIA_DIR = os.path.join(BASE_DIR, 'Archive_2018')
-PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
+# PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
+
+# TEST CASE
+PLAYLIST_DIR = BASE_DIR
 
 # KIEV_STUDIO_DIR_TODAY = os.path.join(
 #     BASE_DIR,
@@ -52,7 +55,7 @@ PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
 
 EXCEL_FILE_NAME = f'{CURRENT_DAY.strftime("%m-%Y")} Расписание онлайн вещания ({MONTH[CURRENT_DAY.month - 1]}).xlsx'
 FULL_EXCEL_FILE_PATH = os.path.join(BASE_DIR, EXCEL_FILE_NAME)
-EXCEL_PAGE_NAME = f'{NEXT_DAY.strftime("%-d")}.{NEXT_DAY.strftime("%m")}'
+EXCEL_PAGE_NAME = f'{NEXT_DAY.day}.{NEXT_DAY.strftime("%m")}'
 
 
 # NAMES FOR FILES
@@ -139,12 +142,17 @@ def main():
             continue
         else:
             if 33 > i >= 28 or 66 > i >= 61:
-                continue
+                if sheet.cell_value(i, 5) == 'ГОДИНА БОЖОГО СЛОВА':
+                    load_file_number = str(round(sheet.cell_value(i, 4)))
+                    mp3_file_name = f'Online radio block {load_file_number}.mp3'
+                    load_file_name = 'ГОДИНА БОЖОГО СЛОВА'
+                else:
+                    continue
                 # mp3_file_name = MAIN_AUDIO_FILES[sheet.cell_value(i, 5)]
                 # load_file_name = sheet.cell_value(i, 5)
                 # load_file_number = ''
 
-            if sheet.cell_value(i, 5) == 'муз.блок':
+            elif sheet.cell_value(i, 5) == 'муз.блок':
                 muzblock_index = random.randrange(0, len(MUZBLOCKS))
                 mp3_file_name = MUZBLOCKS[muzblock_index]
                 load_file_name = 'Muzblock'
@@ -163,7 +171,10 @@ def main():
 
                 mp3_file_name = f'{load_file_name} {load_file_number}.mp3'
                 mp3_file_name = re.sub(r'\s\s', ' ', mp3_file_name)
-                mp3_length = get_mp3_file_length(MEDIA_DIR, mp3_file_name)
+                # mp3_length = get_mp3_file_length(MEDIA_DIR, mp3_file_name)
+
+                # TEST CASE
+                mp3_length = 960
 
             full_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
