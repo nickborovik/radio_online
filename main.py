@@ -25,29 +25,29 @@ PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
 # TEST CASE
 # PLAYLIST_DIR = BASE_DIR
 
-# KIEV_STUDIO_DIR_TODAY = os.path.join(
-#     BASE_DIR,
-#     'Kievskaya Studia',
-#     '!{}'.format(CURRENT_DAY.strftime('%m %Y'))
-# )
-#
-# KIEV_STUDIO_DIR_TOMORROW = os.path.join(
-#     BASE_DIR,
-#     'Kievskaya Studia',
-#     '!{}'.format(NEXT_DAY.strftime('%m %Y'))
-# )
-#
-# KHARKOV_STUDIO_DIR_TODAY = os.path.join(
-#     BASE_DIR,
-#     '1 SREDNIE VOLNI ONLINE',
-#     '{}'.format(CURRENT_DAY.strftime('%m-%Y'))
-# )
-#
-# KHARKOV_STUDIO_DIR_TOMORROW = os.path.join(
-#     BASE_DIR,
-#     '1 SREDNIE VOLNI ONLINE',
-#     '{}'.format(NEXT_DAY.strftime('%m-%Y'))
-# )
+KIEV_STUDIO_DIR_TODAY = os.path.join(
+    BASE_DIR,
+    'Kievskaya Studia',
+    f'!{CURRENT_DAY.strftime("%m %Y")}'
+)
+
+KIEV_STUDIO_DIR_TOMORROW = os.path.join(
+    BASE_DIR,
+    'Kievskaya Studia',
+    f'!{NEXT_DAY.strftime("%m %Y")}'
+)
+
+KHARKOV_STUDIO_DIR_TODAY = os.path.join(
+    BASE_DIR,
+    '1 SREDNIE VOLNI ONLINE',
+    f'{CURRENT_DAY.strftime("%m-%Y")}'
+)
+
+KHARKOV_STUDIO_DIR_TOMORROW = os.path.join(
+    BASE_DIR,
+    '1 SREDNIE VOLNI ONLINE',
+    f'{NEXT_DAY.strftime("%m-%Y")}'
+)
 
 
 # EXCEL settings
@@ -89,41 +89,40 @@ MUZBLOCKS = [
     'muzblok_26_time_16.16.mp3',
 ]
 
-# MAIN_AUDIO_FILES = {
-#     '900 секунд доброты': '900 sekund dobroti_{}.mp3',
-#     'БА': 'RUS_BST_0420_20200804_1800_BR_.mp3',
-#     'Библейские искатели': 'a.mp3',
-#     'Вивчаємо Біблію разом': 'Bible study_{}.mp3',
-#     'ВЦП': 'a.mp3',
-#     'Герои': 'a.mp3',
-#     'ГОДИНА БОЖОГО СЛОВА': 'Online radio blok {}.mp3',
-#     'Голос друга': 'a.mp3',
-#     'Джерельце': 'a.mp3',
-#     'ЖКОЕ': 'a.mp3',
-#     'ЖН': 'a.mp3',
-#     'Калейдоскоп': 'a.mp3',
-#     'МН': 'RUS_BOH_{}_{}_1800_BR_.mp3',
-#     'Ответственность': 'a.mp3',
-#     'Погляд ': 'a.mp3',
-#     'Свет жизни': 'a.mp3',
-#     'Серебро': 'RUS_SIL_0382_20200805_1930_BR_.mp3',
-#     'Слово на сегодня': 'a.mp3',
-#     'Стежинка': 'a.mp3',
-#     'Суламита': 'RUS_SUL_1107_20200805_1845_BR_.mp3',
-#     'Табор': 'Tabor uhodit v nebo_412_040820.mp3',
-#     'Тихие воды': 'a.mp3',
-#     'Хлеб жизни': 'RUS_BLR_0378_20200804_1815_BR_.mp3',
-#     'Шалом': 'a.mp3',
-#     'Шанс // ГВЛ': 'a.mp3',
-# }
+MAIN_AUDIO_FILES = {
+    '900 секунд доброты': ['900_sekund_dobroti_{}.mp3', 'Kharkov'],
+    'БА': ['RUS_BST_0420_20200804_1800_BR_.mp3', 'Kiev'],
+    'Библейские искатели': ['RUS_TSK_{}.mp3', 'Kiev'],
+    'Вивчаємо Біблію разом': ['Bible_study_{}.mp3', 'Kharkov'],
+    'ВЦП': ['UKR_PRC_{}.mp3',  'Kiev'],
+    'Герои': ['Gde_vi_geroi_{}.mp3', 'Kharkov'],
+    'Голос друга': ['BEL_VFR_{}.mp3', 'Kiev'],
+    'Джерельце': ['UKR_TLS_{}.mp3', 'Kiev'],
+    'ЖКОЕ': ['Zhizn_kak_ona_est_{}.mp3', 'Kharkov'],
+    'ЖН': ['UKR_HOPE_{}.mp3', 'Kiev'],
+    'Калейдоскоп': ['UKR_KAL_{}.mp3', 'Kiev'],
+    'МН': ['RUS_BOH_{}.mp3', 'Kiev'],
+    'Ответственность': ['RUS_SPOT_{}.mp3', 'Kiev'],
+    'Погляд ': ['UKR_TOV_{}.mp3', 'Kiev'],
+    'Свет жизни': ['RUS_IFL_{}.mp3', 'Kiev'],
+    'Серебро': ['RUS_SIL_{}.mp3', 'Kiev'],
+    'Слово на сегодня': ['RUS_TWT_{}.mp3', 'Kiev'],
+    'Стежинка': ['UKR_TLP_{}.mp3', 'Kiev'],
+    'Суламита': ['RUS_SUL_{}.mp3', 'Kiev'],
+    'Табор': ['Tabor uhodit v nebo_412_040820.mp3', 'Kharkov'],
+    'Тихие воды': ['RUS_SWA_{}.mp3', 'Kiev'],
+    'Хлеб жизни': ['RUS_BLR_{}.mp3', 'Kiev'],
+    'Шалом': ['Shalom_{}.mp3', 'Kharkov'],
+    'Шанс // ГВЛ': ['UKR_MAE_{}.mp3', 'Kiev'],
+}
 
 def get_excel_info(file_name, excel_page_name):
     workbook = xlrd.open_workbook(file_name)
     sheet = workbook.sheet_by_name(excel_page_name)
     return sheet
 
-def get_mp3_file_length(media_dir, mp3_file_name):
-    mp3_data = MP3(os.path.join(media_dir, mp3_file_name))
+def get_mp3_file_length(full_path_to_file):
+    mp3_data = MP3(full_path_to_file)
     return int(mp3_data.info.length)
 
 
@@ -141,22 +140,40 @@ def main():
         if i < 3:
             continue
         else:
-            if 33 > i >= 28 or 66 > i >= 61:
-                if sheet.cell_value(i, 5) == 'ГОДИНА БОЖОГО СЛОВА':
-                    load_file_number = str(round(sheet.cell_value(i, 4)))
-                    mp3_file_name = f'Online radio blok {load_file_number}.mp3'
-                    load_file_name = 'Online radio blok'
+            if sheet.cell_value(i, 5) == 'ГОДИНА БОЖОГО СЛОВА':
+                load_file_number = str(round(sheet.cell_value(i, 4)))
+                mp3_file_name = f'Online radio blok {load_file_number}.mp3'
+                load_file_name = 'Online radio blok'
+                full_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
+
+            elif 32 > i >= 28:
+                date = CURRENT_DAY.strftime('%Y%m%d')
+                mp3_file_name = MAIN_AUDIO_FILES[sheet.cell_value(i, 5)][0].format(date)
+                load_file_name = MAIN_AUDIO_FILES[sheet.cell_value(i, 5)][0].format(date)
+                load_file_number = date
+                if MAIN_AUDIO_FILES[sheet.cell_value(i, 5)][1] == 'Kiev':
+                    file_dir = KIEV_STUDIO_DIR_TODAY
                 else:
-                    continue
-                # mp3_file_name = MAIN_AUDIO_FILES[sheet.cell_value(i, 5)]
-                # load_file_name = sheet.cell_value(i, 5)
-                # load_file_number = ''
+                    file_dir = KHARKOV_STUDIO_DIR_TODAY
+                full_file_path = os.path.join(file_dir, mp3_file_name)
+
+            elif 65 > i >= 61:
+                date = NEXT_DAY.strftime('%Y%m%d')
+                mp3_file_name = MAIN_AUDIO_FILES[sheet.cell_value(i, 5)][0].format(date)
+                load_file_name = MAIN_AUDIO_FILES[sheet.cell_value(i, 5)][0].format(date)
+                load_file_number = date
+                if MAIN_AUDIO_FILES[sheet.cell_value(i, 5)][1] == 'Kiev':
+                    file_dir = KIEV_STUDIO_DIR_TOMORROW
+                else:
+                    file_dir = KHARKOV_STUDIO_DIR_TOMORROW
+                full_file_path = os.path.join(file_dir, mp3_file_name)
 
             elif sheet.cell_value(i, 5) == 'муз.блок':
                 muzblock_index = random.randrange(0, len(MUZBLOCKS))
                 mp3_file_name = MUZBLOCKS[muzblock_index]
                 load_file_name = 'Muzblock'
                 load_file_number = muzblock_index + 1
+                full_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
             else:
                 load_file_name = str(sheet.cell_value(i, 3))
@@ -171,13 +188,12 @@ def main():
 
                 mp3_file_name = f'{load_file_name} {load_file_number}.mp3'
                 mp3_file_name = re.sub(r'\s\s', ' ', mp3_file_name)
-                mp3_length = get_mp3_file_length(MEDIA_DIR, mp3_file_name)
 
-                # TEST CASE
-                # mp3_length = 960
+                full_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
-            full_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
-
+            mp3_length = get_mp3_file_length(full_file_path)
+            # TEST CASE
+            # mp3_length = 960
             file_info = f'#EXTINF:{mp3_length},{load_file_name} - {load_file_number}\n'
             file_data.append(file_info)
             file_data.append(f'{full_file_path}\n')
