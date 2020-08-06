@@ -190,8 +190,10 @@ def main():
 
                 mp3_file_name = f'{load_file_name} {load_file_number}.mp3'
                 mp3_file_name = re.sub(r'\s\s', ' ', mp3_file_name)
-
-                full_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
+                if sheet.cell_value(i, 5) == 'ДО (15)':
+                    full_file_path = os.path.join(MEDIA_DIR, 'domashniy ochag 15 min', mp3_file_name)
+                else:
+                    full_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
             mp3_length = get_mp3_file_length(full_file_path)
             # TEST CASE
