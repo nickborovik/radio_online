@@ -1,5 +1,5 @@
 import os
-import xlrd
+from openpyxl import load_workbook
 import datetime
 import re
 import random
@@ -134,14 +134,13 @@ MAIN_AUDIO_FILES = {
 }
 
 def get_excel_info(file_name, excel_page_name):
-    workbook = xlrd.open_workbook(file_name)
-    sheet = workbook.sheet_by_name(excel_page_name)
+    workbook = load_workbook(file_name)
+    sheet = workbook[excel_page_name]
     return sheet
 
 def get_mp3_file_length(full_path_to_file):
     mp3_data = MP3(full_path_to_file)
     return int(mp3_data.info.length)
-
 
 def write_playlist_to_file(date, file_data):
     with open(os.path.join(PLAYLIST_DIR, f'playlist for {date}.m3u8'), 'w') as write_file:
@@ -153,73 +152,62 @@ def main():
     file_data = ['#EXTM3U\n']
     sheet = get_excel_info(FULL_EXCEL_FILE_PATH, EXCEL_PAGE_NAME)
 
-    for i in range(sheet.nrows):
-        if i < 3:
-            continue
-        else:
-            if sheet.cell_value(i, 5) == 'ГОДИНА БОЖОГО СЛОВА':
-                load_file_number = str(round(sheet.cell_value(i, 4)))
-                mp3_file_name = f'Online radio blok {load_file_number}.mp3'
-                load_file_name = 'Online radio blok'
-                full_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
+    for row in sheet.iter_rows(min_row=4, max_row=69, max_col=6, values_only=True):
 
-            elif 32 > i >= 28:
-                date = CURRENT_DAY.strftime('%Y%m%d')
-                mp3_file_name = MAIN_AUDIO_FILES[sheet.cell_value(i, 5)][0].format(date)
-                load_file_name = MAIN_AUDIO_FILES[sheet.cell_value(i, 5)][0].format(date)
-                load_file_number = date
-                if MAIN_AUDIO_FILES[sheet.cell_value(i, 5)][1] == 'Kiev':
-                    file_dir = KIEV_STUDIO_DIR_TODAY
-                else:
-                    file_dir = KHARKOV_STUDIO_DIR_TODAY
-                full_file_path = os.path.join(file_dir, mp3_file_name)
+        if row[5] == 'муз.блок':
+            mp3_file_name = MUZBLOCKS[random.randrange(0, len(MUZBLOCKS))]
+            file_name = 'Muzblock'
+            full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
-            elif 65 > i >= 61:
-                date = NEXT_DAY.strftime('%Y%m%d')
-                mp3_file_name = MAIN_AUDIO_FILES[sheet.cell_value(i, 5)][0].format(date)
-                load_file_name = MAIN_AUDIO_FILES[sheet.cell_value(i, 5)][0].format(date)
-                load_file_number = date
-                if MAIN_AUDIO_FILES[sheet.cell_value(i, 5)][1] == 'Kiev':
-                    file_dir = KIEV_STUDIO_DIR_TOMORROW
-                else:
-                    file_dir = KHARKOV_STUDIO_DIR_TOMORROW
-                full_file_path = os.path.join(file_dir, mp3_file_name)
+        elif row[5] == 'ГОДИНА БОЖОГО СЛОВА':
+            load_file_number = row[4]
+            file_name = 'Online radio blok'
+            mp3_file_name = f'{file_name} {load_file_number}.mp3'
+            full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
-            elif sheet.cell_value(i, 5) == 'муз.блок':
-                muzblock_index = random.randrange(0, len(MUZBLOCKS))
-                mp3_file_name = MUZBLOCKS[muzblock_index]
-                load_file_name = 'Muzblock'
-                load_file_number = muzblock_index + 1
-                full_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
+        elif 30 > row[0] >= 26:
+            date = CURRENT_DAY.strftime('%Y%m%d')
+            file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
+            mp3_file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
 
+            if MAIN_AUDIO_FILES[row[5]][1] == 'Kiev':
+                file_dir = KIEV_STUDIO_DIR_TODAY
             else:
-                load_file_name = str(sheet.cell_value(i, 3))
-                try:
-                    load_file_number = str(round(sheet.cell_value(i, 4)))
-                except:
-                    load_file_number = str(sheet.cell_value(i, 4))
-                    if 'Лекция' in load_file_number:
-                        load_file_number = re.sub(r'Лекция', 'L', load_file_number)
-                    if 'М.В.' in load_file_number:
-                        load_file_number = re.sub(r'M\.B\.', 'M', load_file_number)
+                file_dir = KHARKOV_STUDIO_DIR_TODAY
+            full_mp3_file_path = os.path.join(file_dir, mp3_file_name)
 
-                mp3_file_name = f'{load_file_name} {load_file_number}.mp3'
-                mp3_file_name = re.sub(r'\s\s', ' ', mp3_file_name)
-                if sheet.cell_value(i, 5) == 'ДО (15)':
-                    full_file_path = os.path.join(MEDIA_DIR, 'domashniy ochag 15 min', mp3_file_name)
-                else:
-                    full_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
+        elif 63 > row[0] >= 59:
+            date = NEXT_DAY.strftime('%Y%m%d')
+            file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
+            mp3_file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
 
-            mp3_length = get_mp3_file_length(full_file_path)
-            # TEST CASE
-            # mp3_length = 960
-            file_info = f'#EXTINF:{mp3_length},{load_file_name} - {load_file_number}\n'
-            file_data.append(file_info)
-            file_data.append(f'{full_file_path}\n')
+            if MAIN_AUDIO_FILES[row[5]][1] == 'Kiev':
+                file_dir = KIEV_STUDIO_DIR_TOMORROW
+            else:
+                file_dir = KHARKOV_STUDIO_DIR_TOMORROW
+            full_mp3_file_path = os.path.join(file_dir, mp3_file_name)
+
+        else:
+            if 'Лекция' in str(row[4]):
+                file_number = re.sub(r'Лекция', 'L', row[4])
+            elif 'М.В.' in str(row[4]):
+                file_number = re.sub(r'M\.B\.', 'M', row[4])
+            else:
+                file_number = row[4]
+
+            file_name = row[3]
+            mp3_file_name = re.sub(r'\s\s', ' ', f'{file_name} {file_number}.mp3')
+            full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
+
+        mp3_file_length = get_mp3_file_length(full_mp3_file_path)
+        # mp3_file_length = 920
+
+        file_data.append(f'#EXTINF:{mp3_file_length},{file_name}\n')
+        file_data.append(f'{full_mp3_file_path}\n')
 
     file_data.append(f'playlist {NEXT_PLAYLIST_DATE}.command')
-    write_playlist_to_file(PLAYLIST_DATE_FOR_TOMORROW, file_data)
 
+    write_playlist_to_file(PLAYLIST_DATE_FOR_TOMORROW, file_data)
 
 if __name__ == '__main__':
     main()
