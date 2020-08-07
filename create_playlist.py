@@ -18,7 +18,7 @@ MONTH = ['январь', 'февраль', 'март', 'апрель', 'май',
 
 # DIRS
 # -------------------------------------------------------------------------------------------------
-BASE_DIR = os.getcwd()
+BASE_DIR = os.path.join('D:\\', 'INTERNET RADIO')
 MEDIA_DIR = os.path.join(BASE_DIR, 'Archive_2018')
 PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
 
