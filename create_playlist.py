@@ -10,7 +10,7 @@ from mutagen.mp3 import MP3
 CURRENT_DAY = datetime.datetime.today().date()
 NEXT_DAY = CURRENT_DAY + datetime.timedelta(days=1)
 
-PLAYLIST_DATE_FOR_TOMORROW = NEXT_DAY.strftime('%d%m%Y')
+PLAYLIST_NAME = f'playlist_for_{NEXT_DAY.strftime("%d%m%Y")}.m3u8'
 NEXT_PLAYLIST_DATE = (NEXT_DAY + datetime.timedelta(days=1)).strftime('%d_%m_%Y')
 
 MONTH = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
@@ -144,10 +144,10 @@ def get_mp3_file_length(full_path_to_file):
     mp3_data = MP3(full_path_to_file)
     return int(mp3_data.info.length)
 
-def write_playlist_to_file(date, file_data):
-    with open(os.path.join(PLAYLIST_DIR, f'playlist for {date}.m3u8'), 'w') as write_file:
+def write_playlist_to_file(playlist_path, file_data):
+    with open(playlist_path, 'w') as write_file:
         write_file.writelines(file_data)
-    print(f'Плейлист на {date} готов и находится в папке \n{PLAYLIST_DIR}')
+    print(f'Плейлист на {NEXT_DAY.strftime("%d.%m.%Y")} готов и находится в папке \n{PLAYLIST_DIR}')
 
 
 def main():
@@ -211,9 +211,12 @@ def main():
         file_data.append(f'#EXTINF:{mp3_file_length},{file_name}\n')
         file_data.append(f'{full_mp3_file_path}\n')
 
-    file_data.append(f'playlist {NEXT_PLAYLIST_DATE}.command')
+    # file_data.append(f'playlist {NEXT_PLAYLIST_DATE}.command')
+    playlist_path = os.path.join(PLAYLIST_DIR, PLAYLIST_NAME)
 
-    write_playlist_to_file(PLAYLIST_DATE_FOR_TOMORROW, file_data)
+    file_data.append(f'load {NEXT_PLAYLIST_DATE}.command')
+
+    write_playlist_to_file(playlist_path, file_data)
 
 
 if __name__ == '__main__':
