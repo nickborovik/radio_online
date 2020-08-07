@@ -214,7 +214,7 @@ def main():
     # file_data.append(f'playlist {NEXT_PLAYLIST_DATE}.command')
     playlist_path = os.path.join(PLAYLIST_DIR, PLAYLIST_NAME)
 
-    file_data.append(f'load {NEXT_PLAYLIST_DATE}.command')
+    file_data.append(f'load {playlist_path}.command')
 
     write_playlist_to_file(playlist_path, file_data)
 
