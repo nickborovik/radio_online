@@ -21,6 +21,7 @@ MONTH = ['январь', 'февраль', 'март', 'апрель', 'май',
 BASE_DIR = os.path.join('D:\\', 'INTERNET RADIO')
 MEDIA_DIR = os.path.join(BASE_DIR, 'Archive_2018')
 PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
+DO_15_MIN_DIR = os.path.join(MEDIA_DIR, 'domashniy ochag 15 min')
 
 KIEV_STUDIO_DIR_TODAY = os.path.join(
     BASE_DIR,
@@ -164,10 +165,17 @@ def main():
 
         elif row[5] == 'ГОДИНА БОЖОГО СЛОВА':
             '''Конкретный случай для передачи Година Божого Слова'''
-            load_file_number = row[4]
+            file_number = row[4]
             file_name = 'Online radio blok'
-            mp3_file_name = f'{file_name} {load_file_number}.mp3'
+            mp3_file_name = f'{file_name} {file_number}.mp3'
             full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
+
+        elif row[5] == 'ДО (15)':
+            '''Конкретный случай для передачи Домашний очаг 15 минут'''
+            file_number = row[4]
+            file_name = row[3]
+            mp3_file_name = f'{file_name} {file_number}.mp3'
+            full_mp3_file_path = os.path.join(DO_15_MIN_DIR, mp3_file_name)
 
         elif 30 > row[0] >= 26:
             '''Повтор за вчера'''
