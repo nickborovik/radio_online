@@ -10,8 +10,8 @@ from mutagen.mp3 import MP3
 CURRENT_DAY = datetime.datetime.today().date()
 NEXT_DAY = CURRENT_DAY + datetime.timedelta(days=1)
 
-PLAYLIST_NAME = f'playlist_for_{NEXT_DAY.strftime("%d%m%Y")}.m3u8'
-NEXT_PLAYLIST_DATE = (NEXT_DAY + datetime.timedelta(days=1)).strftime('%d_%m_%Y')
+NEXT_PLAYLIST_DATE = (NEXT_DAY + datetime.timedelta(days=1)).strftime('%d%m%Y')
+PLAYLIST_NAME = f'playlist_for_{NEXT_PLAYLIST_DATE}.m3u8'
 
 MONTH = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
          'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь']
