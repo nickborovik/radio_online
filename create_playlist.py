@@ -6,18 +6,15 @@ import random
 from mutagen.mp3 import MP3
 
 # DATES
-# -------------------------------------------------------------------------------------------------
+
 CURRENT_DAY = datetime.datetime.today().date()
 NEXT_DAY = CURRENT_DAY + datetime.timedelta(days=1)
-
-NEXT_PLAYLIST_NAME = f'playlist_for_{(NEXT_DAY + datetime.timedelta(days=1)).strftime("%d%m%Y")}.m3u8'
-PLAYLIST_NAME = f'playlist_for_{NEXT_DAY.strftime("%d%m%Y")}.m3u8'
 
 MONTH = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
          'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь']
 
 # DIRS
-# -------------------------------------------------------------------------------------------------
+
 BASE_DIR = os.path.join('D:\\', 'INTERNET RADIO')
 MEDIA_DIR = os.path.join(BASE_DIR, 'Archive_2018')
 PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
@@ -49,9 +46,7 @@ KHARKOV_STUDIO_DIR_TOMORROW = os.path.join(
     f'{NEXT_DAY.strftime("%m-%Y")}'
 )
 
-
 # EXCEL settings
-# -------------------------------------------------------------------------------------------------
 
 EXCEL_FILE_NAME = os.path.join(
     BASE_DIR,
@@ -60,9 +55,14 @@ EXCEL_FILE_NAME = os.path.join(
 FULL_EXCEL_FILE_PATH = os.path.join(BASE_DIR, EXCEL_FILE_NAME)
 EXCEL_PAGE_NAME = f'{NEXT_DAY.day}.{NEXT_DAY.strftime("%m")}'
 
+# PLAYLIST settings
+
+PLAYLIST_NAME = f'playlist_for_{NEXT_DAY.strftime("%d%m%Y")}.m3u8'
+NEXT_PLAYLIST_NAME = f'playlist_for_{(NEXT_DAY + datetime.timedelta(days=1)).strftime("%d%m%Y")}.m3u8'
+PLAYLIST_PATH = os.path.join(PLAYLIST_DIR, PLAYLIST_NAME)
 
 # NAMES FOR FILES
-# -------------------------------------------------------------------------------------------------
+
 MUZBLOCKS = [
     'muzblok_01_time_12.15.mp3',
     'muzblok_02_time_14.43.mp3',
@@ -137,15 +137,18 @@ MAIN_AUDIO_FILES = {
 # MAIN CODE
 
 def get_excel_info(file_name, excel_page_name):
+    """Возвращает лист с книги Excel"""
     workbook = load_workbook(file_name)
     sheet = workbook[excel_page_name]
     return sheet
 
 def get_mp3_file_length(full_path_to_file):
+    """Возвращает длинну MP3 трека в секундах"""
     mp3_data = MP3(full_path_to_file)
     return int(mp3_data.info.length)
 
 def write_playlist_to_file(playlist_path, file_data):
+    """Записать плейлист в файл"""
     with open(playlist_path, 'w') as write_file:
         write_file.writelines(file_data)
     print(f'Плейлист на {NEXT_DAY.strftime("%d.%m.%Y")} готов и находится в папке \n{PLAYLIST_DIR}')
@@ -158,27 +161,27 @@ def main():
     for row in sheet.iter_rows(min_row=4, max_row=69, max_col=6, values_only=True):
 
         if row[5] == 'муз.блок':
-            '''Выбрать случайный музлок и вставить в вместо пустого поля'''
+            """Выбрать случайный музлок и вставить в вместо пустого поля"""
             mp3_file_name = MUZBLOCKS[random.randrange(0, len(MUZBLOCKS))]
             file_name = 'Muzblock'
             full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
         elif row[5] == 'ГОДИНА БОЖОГО СЛОВА':
-            '''Конкретный случай для передачи Година Божого Слова'''
+            """Конкретный случай для передачи Година Божого Слова"""
             file_number = row[4]
             file_name = 'Online radio blok'
             mp3_file_name = f'{file_name} {file_number}.mp3'
             full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
         elif row[5] == 'ДО (15)':
-            '''Конкретный случай для передачи Домашний очаг 15 минут'''
+            """Конкретный случай для передачи Домашний очаг 15 минут"""
             file_number = row[4]
             file_name = row[3]
             mp3_file_name = f'{file_name} {file_number}.mp3'
             full_mp3_file_path = os.path.join(DO_15_MIN_DIR, mp3_file_name)
 
         elif 30 > row[0] >= 26:
-            '''Повтор за вчера'''
+            """Повтор за вчера"""
             date = CURRENT_DAY.strftime('%Y%m%d')
             file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
             mp3_file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
@@ -190,7 +193,7 @@ def main():
             full_mp3_file_path = os.path.join(file_dir, mp3_file_name)
 
         elif 63 > row[0] >= 59:
-            '''Прямой эфир'''
+            """Прямой эфир"""
             date = NEXT_DAY.strftime('%Y%m%d')
             file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
             mp3_file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
@@ -202,7 +205,7 @@ def main():
             full_mp3_file_path = os.path.join(file_dir, mp3_file_name)
 
         else:
-            '''Все остальные случаи, где файл из папки Archive_2018'''
+            """Все остальные случаи, где файл из папки Archive_2018"""
             if 'Лекция' in str(row[4]):
                 file_number = re.sub(r'Лекция', 'L', row[4])
             elif 'М.В.' in str(row[4]):
@@ -215,15 +218,11 @@ def main():
             full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
         mp3_file_length = get_mp3_file_length(full_mp3_file_path)
-
         file_data.append(f'#EXTINF:{mp3_file_length},{file_name}\n')
         file_data.append(f'{full_mp3_file_path}\n')
-
-    playlist_path = os.path.join(PLAYLIST_DIR, PLAYLIST_NAME)
-
     file_data.append(f'load {os.path.join(PLAYLIST_DIR, NEXT_PLAYLIST_NAME)}.command')
 
-    write_playlist_to_file(playlist_path, file_data)
+    write_playlist_to_file(PLAYLIST_PATH, file_data)
 
 
 if __name__ == '__main__':
