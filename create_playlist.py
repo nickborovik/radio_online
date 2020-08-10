@@ -217,9 +217,9 @@ def main():
         else:
             """Все остальные случаи, где файл из папки Archive_2018"""
             if 'Лекция' in str(row[4]):
-                file_number = re.sub(r'Лекция', 'L', row[4])
+                file_number = re.sub(r'Лекция', 'L', str(row[4]))
             elif 'М.В.' in str(row[4]):
-                file_number = re.sub(r'M.B.', 'M', row[4])
+                file_number = re.sub(r'M\.B\.', 'M', str(row[4]))
             else:
                 file_number = row[4]
 
