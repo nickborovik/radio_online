@@ -2,7 +2,7 @@ import os
 from openpyxl import load_workbook
 import datetime
 import re
-import random
+# import random
 from mutagen.mp3 import MP3
 
 # DATES
@@ -16,6 +16,8 @@ MONTH = ['январь', 'февраль', 'март', 'апрель', 'май',
 # DIRS
 
 BASE_DIR = os.path.join('D:\\', 'INTERNET RADIO')
+# BASE_DIR = os.getcwd()
+# MEDIA_DIR = os.getcwd()
 MEDIA_DIR = os.path.join(BASE_DIR, 'Archive_2018')
 PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
 DO_15_MIN_DIR = os.path.join(MEDIA_DIR, 'domashniy ochag 15 min')
@@ -63,49 +65,49 @@ PLAYLIST_PATH = os.path.join(PLAYLIST_DIR, PLAYLIST_NAME)
 
 # NAMES FOR FILES
 
-MUZBLOCKS = [
-    'muzblok_01_time_12.15.mp3',
-    'muzblok_02_time_14.43.mp3',
-    'muzblok_03_time_13.42.mp3',
-    'muzblok_04_time_14.57.mp3',
-    'muzblok_05_time_13.20.mp3',
-    'muzblok_06_time_14.19.mp3',
-    'muzblok_07_time_14.21.mp3',
-    'muzblok_08_time_13.55.mp3',
-    'muzblok_09_time_14.20.mp3',
-    'muzblok_10_time_14.33.mp3',
-    'muzblok_11_time_14.02.mp3',
-    'muzblok_12_time_12.40.mp3',
-    'muzblok_13_time_14.27.mp3',
-    'muzblok_14_time_14.41.mp3',
-    'muzblok_15_time_13.58.mp3',
-    'muzblok_16_time_14.49.mp3',
-    'muzblok_17_time_14.46.mp3',
-    'muzblok_18_time_12.40.mp3',
-    'muzblok_19_time_14.55.mp3',
-    'muzblok_20_time_14.59.mp3',
-    'muzblok_21_time_15.43.mp3',
-    'muzblok_22_time_15.33.mp3',
-    'muzblok_23_time_14.55.mp3',
-    'muzblok_24_time_14.16.mp3',
-    'muzblok_25_time_16.18.mp3',
-    'muzblok_26_time_16.16.mp3',
-    '01 Kharkov time 11 min-a.mp3',
-    '02 Kharkov time 11 min-a.mp3',
-    '03 Kharkov time 11 min-a.mp3',
-    '04 Kharkov time 11 min-a.mp3',
-    '05 Kharkov time 11 min-a.mp3',
-    '06 Kharkov time 11 min-a.mp3',
-    '07 Kharkov time 11 min-a.mp3',
-    '08 Kharkov time 11 min-a.mp3',
-    '09 Kharkov time 11 min-a.mp3',
-    '10 Kharkov time 11 min-a.mp3',
-    '11 Kharkov time 9 min-a.mp3',
-    '12 Kharkov time 9 min-a.mp3',
-    '13 Kharkov time 10 min-a.mp3',
-    '14 Kharkov time 10 min-a.mp3',
-    '15 Kharkov time 10 min-a.mp3',
-]
+MUZBLOCKS = {
+    539: '11 Kharkov time 9 min-a.mp3',
+    540: '12 Kharkov time 9 min-a.mp3',
+    599: '14 Kharkov time 10 min-a.mp3',
+    601: '13 Kharkov time 10 min-a.mp3',
+    602: '15 Kharkov time 10 min-a.mp3',
+    657: '09 Kharkov time 11 min-a.mp3',
+    658: '04 Kharkov time 11 min-a.mp3',
+    659: '10 Kharkov time 11 min-a.mp3',
+    660: '03 Kharkov time 11 min-a.mp3',
+    661: '01 Kharkov time 11 min-a.mp3',
+    662: '06 Kharkov time 11 min-a.mp3',
+    663: '05 Kharkov time 11 min-a.mp3',
+    664: '02 Kharkov time 11 min-a.mp3',
+    665: '08 Kharkov time 11 min-a.mp3',
+    666: '07 Kharkov time 11 min-a.mp3',
+    734: 'muzblok_01_time_12.15.mp3',
+    759: 'muzblok_18_time_12.40.mp3',
+    760: 'muzblok_12_time_12.40.mp3',
+    799: 'muzblok_05_time_13.20.mp3',
+    821: 'muzblok_03_time_13.42.mp3',
+    834: 'muzblok_08_time_13.55.mp3',
+    837: 'muzblok_15_time_13.58.mp3',
+    841: 'muzblok_11_time_14.02.mp3',
+    855: 'muzblok_24_time_14.16.mp3',
+    858: 'muzblok_06_time_14.19.mp3',
+    859: 'muzblok_09_time_14.20.mp3',
+    860: 'muzblok_07_time_14.21.mp3',
+    866: 'muzblok_13_time_14.27.mp3',
+    872: 'muzblok_10_time_14.33.mp3',
+    880: 'muzblok_14_time_14.41.mp3',
+    882: 'muzblok_02_time_14.43.mp3',
+    885: 'muzblok_17_time_14.46.mp3',
+    888: 'muzblok_16_time_14.49.mp3',
+    893: 'muzblok_23_time_14.55.mp3',
+    894: 'muzblok_19_time_14.55.mp3',
+    896: 'muzblok_04_time_14.57.mp3',
+    898: 'muzblok_20_time_14.59.mp3',
+    932: 'muzblok_22_time_15.33.mp3',
+    942: 'muzblok_21_time_15.43.mp3',
+    975: 'muzblok_26_time_16.16.mp3',
+    977: 'muzblok_25_time_16.18.mp3',
+}
 
 MAIN_AUDIO_FILES = {
     '900 секунд доброты': ['900_sekund_dobroti_{}.mp3', 'Kharkov'],
@@ -138,7 +140,7 @@ MAIN_AUDIO_FILES = {
 
 def get_excel_info(file_name, excel_page_name):
     """Возвращает лист с книги Excel"""
-    workbook = load_workbook(file_name)
+    workbook = load_workbook(file_name, data_only=True)
     sheet = workbook[excel_page_name]
     return sheet
 
@@ -157,14 +159,22 @@ def write_playlist_to_file(playlist_path, file_data):
 def main():
     file_data = ['#EXTM3U\n']
     sheet = get_excel_info(FULL_EXCEL_FILE_PATH, EXCEL_PAGE_NAME)
+    total_tracks_time_before_muzblock = 0
 
     for row in sheet.iter_rows(min_row=4, max_row=69, max_col=6, values_only=True):
+        print(row)
 
         if row[5] == 'муз.блок':
-            """Выбрать случайный музлок и вставить в вместо пустого поля"""
-            mp3_file_name = MUZBLOCKS[random.randrange(0, len(MUZBLOCKS))]
+            """Выбрать самый подходящий музлок и вставить в вместо пустого поля"""
+            track_end_time = datetime.timedelta(hours=row[2].hour, minutes=row[2].minute)
+            total_tracks_time_before_muzblock = datetime.timedelta(seconds=total_tracks_time_before_muzblock)
+            muzblock_needed_length = int((track_end_time - total_tracks_time_before_muzblock).total_seconds())
+            track = min(MUZBLOCKS, key=lambda x: abs(x - muzblock_needed_length))
+            mp3_file_name = MUZBLOCKS[track]
+            # mp3_file_name = MUZBLOCKS[random.randrange(0, len(MUZBLOCKS))]
             file_name = 'Muzblock'
             full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
+            total_tracks_time_before_muzblock = 0
 
         elif row[5] == 'ГОДИНА БОЖОГО СЛОВА':
             """Конкретный случай для передачи Година Божого Слова"""
@@ -218,6 +228,7 @@ def main():
             full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
         mp3_file_length = get_mp3_file_length(full_mp3_file_path)
+        total_tracks_time_before_muzblock += mp3_file_length
         file_data.append(f'#EXTINF:{mp3_file_length},{file_name}\n')
         file_data.append(f'{full_mp3_file_path}\n')
     file_data.append(f'load {os.path.join(PLAYLIST_DIR, NEXT_PLAYLIST_NAME)}.command')
