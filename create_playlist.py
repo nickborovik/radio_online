@@ -157,21 +157,19 @@ def write_playlist_to_file(playlist_path, file_data):
 def main():
     file_data = ['#EXTM3U\n']
     sheet = get_excel_info(FULL_EXCEL_FILE_PATH, EXCEL_PAGE_NAME)
-    total_tracks_time_before_muzblock = 0
+    total_playing_tracks_time = 0
 
     for row in sheet.iter_rows(min_row=4, max_row=69, max_col=6, values_only=True):
 
         if row[5] == 'муз.блок':
             """Выбрать самый подходящий музлок и вставить в вместо пустого поля"""
             track_end_time = datetime.timedelta(hours=row[2].hour, minutes=row[2].minute)
-            total_tracks_time_before_muzblock = datetime.timedelta(seconds=total_tracks_time_before_muzblock)
-            muzblock_needed_length = int((track_end_time - total_tracks_time_before_muzblock).total_seconds())
+            current_playing_track_time = datetime.timedelta(seconds=total_playing_tracks_time)
+            muzblock_needed_length = int((track_end_time - current_playing_track_time).total_seconds())
             track = min(MUZBLOCKS, key=lambda x: abs(x - muzblock_needed_length))
             mp3_file_name = MUZBLOCKS[track]
-            # mp3_file_name = MUZBLOCKS[random.randrange(0, len(MUZBLOCKS))]
             file_name = 'Muzblock'
             full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
-            total_tracks_time_before_muzblock = 0
 
         elif row[5] == 'ГОДИНА БОЖОГО СЛОВА':
             """Конкретный случай для передачи Година Божого Слова"""
@@ -226,7 +224,7 @@ def main():
             full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
         mp3_file_length = get_mp3_file_length(full_mp3_file_path)
-        total_tracks_time_before_muzblock += mp3_file_length
+        total_playing_tracks_time += mp3_file_length
         file_data.append(f'#EXTINF:{mp3_file_length},{file_name}\n')
         file_data.append(f'{full_mp3_file_path}\n')
     file_data.append(f'load {os.path.join(PLAYLIST_DIR, NEXT_PLAYLIST_NAME)}.command')
