@@ -111,7 +111,7 @@ MUZBLOCKS = {
 
 MAIN_AUDIO_FILES = {
     '900 секунд доброты': ['900_sekund_dobroti_{}.mp3', 'Kharkov'],
-    'БА': ['RUS_BST_0420_20200804_1800_BR_.mp3', 'Kiev'],
+    'БА': ['RUS_BST_{}.mp3', 'Kiev'],
     'Библейские искатели': ['RUS_TSK_{}.mp3', 'Kiev'],
     'Вивчаємо Біблію разом': ['Bible_study_{}.mp3', 'Kharkov'],
     'ВЦП': ['UKR_PRC_{}.mp3',  'Kiev'],
