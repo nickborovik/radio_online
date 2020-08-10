@@ -129,7 +129,7 @@ MAIN_AUDIO_FILES = {
     'Слово на сегодня': ['RUS_TWT_{}.mp3', 'Kiev'],
     'Стежинка': ['UKR_TLP_{}.mp3', 'Kiev'],
     'Суламита': ['RUS_SUL_{}.mp3', 'Kiev'],
-    'Табор': ['Tabor uhodit v nebo_412_040820.mp3', 'Kharkov'],
+    'Табор': ['Tabor_uhodit_v_nebo_{}.mp3', 'Kharkov'],
     'Тихие воды': ['RUS_SWA_{}.mp3', 'Kiev'],
     'Хлеб жизни': ['RUS_BLR_{}.mp3', 'Kiev'],
     'Шалом': ['Shalom_{}.mp3', 'Kharkov'],
