@@ -1,8 +1,6 @@
 import os
 from openpyxl import load_workbook
 import datetime
-import re
-# import random
 from mutagen.mp3 import MP3
 
 # DATES
@@ -162,7 +160,6 @@ def main():
     total_tracks_time_before_muzblock = 0
 
     for row in sheet.iter_rows(min_row=4, max_row=69, max_col=6, values_only=True):
-        print(row)
 
         if row[5] == 'муз.блок':
             """Выбрать самый подходящий музлок и вставить в вместо пустого поля"""
@@ -218,15 +215,14 @@ def main():
             """Все остальные случаи, где файл из папки Archive_2018"""
             if 'Лекция' in str(row[4]):
                 file_number = str(row[4]).replace('Лекция', 'L')
-                # file_number = re.sub(r'Лекция', 'L', str(row[4]))
             elif 'М.В.' in str(row[4]):
                 file_number = str(row[4]).replace('М.В.', 'M')
-                # file_number = re.sub(r'M\.B\.', 'M', str(row[4]))
             else:
                 file_number = row[4]
 
             file_name = row[3]
-            mp3_file_name = re.sub(r'\s\s', ' ', f'{file_name} {file_number}.mp3')
+            # mp3_file_name = re.sub(r'\s\s', ' ', f'{file_name} {file_number}.mp3')
+            mp3_file_name = f'{file_name} {file_number}.mp3'.replace('  ', ' ')
             full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
         mp3_file_length = get_mp3_file_length(full_mp3_file_path)
