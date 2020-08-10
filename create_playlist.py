@@ -219,7 +219,7 @@ def main():
             if 'Лекция' in str(row[4]):
                 file_number = re.sub(r'Лекция', 'L', row[4])
             elif 'М.В.' in str(row[4]):
-                file_number = re.sub(r'M\.B\.', 'M', row[4])
+                file_number = re.sub(r'M.B.', 'M', row[4])
             else:
                 file_number = row[4]
 
