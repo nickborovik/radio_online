@@ -1,7 +1,9 @@
 import os
+import sys
 from openpyxl import load_workbook
 import datetime
 from mutagen.mp3 import MP3
+from mutagen import MutagenError
 
 # DATES
 
@@ -14,8 +16,6 @@ MONTH = ['январь', 'февраль', 'март', 'апрель', 'май',
 # DIRS
 
 BASE_DIR = os.path.join('D:\\', 'INTERNET RADIO')
-# BASE_DIR = os.getcwd()
-# MEDIA_DIR = os.getcwd()
 MEDIA_DIR = os.path.join(BASE_DIR, 'Archive_2018')
 PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
 DO_15_MIN_DIR = os.path.join(MEDIA_DIR, 'domashniy ochag 15 min')
@@ -138,14 +138,23 @@ MAIN_AUDIO_FILES = {
 
 def get_excel_info(file_name, excel_page_name):
     """Возвращает лист с книги Excel"""
-    workbook = load_workbook(file_name, data_only=True)
-    sheet = workbook[excel_page_name]
-    return sheet
+    try:
+        workbook = load_workbook(file_name, data_only=True)
+        sheet = workbook[excel_page_name]
+        return sheet
+    except FileNotFoundError:
+        raise print('Файл расписания не найден:\n', file_name)
+        os.system('pause')
 
 def get_mp3_file_length(full_path_to_file):
     """Возвращает длинну MP3 трека в секундах"""
-    mp3_data = MP3(full_path_to_file)
-    return int(mp3_data.info.length)
+    try:
+        mp3_data = MP3(full_path_to_file)
+        return int(mp3_data.info.length)
+    except MutagenError:
+        raise print('MP3 файл не найден:\n', full_path_to_file)
+        os.system('pause')
+
 
 def write_playlist_to_file(playlist_path, file_data):
     """Записать плейлист в файл"""
