@@ -1,9 +1,7 @@
 import os
-import sys
 from openpyxl import load_workbook
 import datetime
 from mutagen.mp3 import MP3
-from mutagen import MutagenError
 
 # DATES
 
@@ -138,22 +136,14 @@ MAIN_AUDIO_FILES = {
 
 def get_excel_info(file_name, excel_page_name):
     """Возвращает лист с книги Excel"""
-    try:
-        workbook = load_workbook(file_name, data_only=True)
-        sheet = workbook[excel_page_name]
-        return sheet
-    except FileNotFoundError:
-        raise print('Файл расписания не найден:\n', file_name)
-        os.system('pause')
+    workbook = load_workbook(file_name, data_only=True)
+    sheet = workbook[excel_page_name]
+    return sheet
 
 def get_mp3_file_length(full_path_to_file):
     """Возвращает длинну MP3 трека в секундах"""
-    try:
-        mp3_data = MP3(full_path_to_file)
-        return int(mp3_data.info.length)
-    except MutagenError:
-        raise print('MP3 файл не найден:\n', full_path_to_file)
-        os.system('pause')
+    mp3_data = MP3(full_path_to_file)
+    return int(mp3_data.info.length)
 
 
 def write_playlist_to_file(playlist_path, file_data):
@@ -172,7 +162,10 @@ def main():
 
         if row[5] == 'муз.блок':
             """Выбрать самый подходящий музлок и вставить в вместо пустого поля"""
-            track_end_time = datetime.timedelta(hours=row[2].hour, minutes=row[2].minute)
+            if row[0] == 66:
+                track_end_time = datetime.timedelta(hours=23, minutes=59, seconds=59)
+            else:
+                track_end_time = datetime.timedelta(hours=row[2].hour, minutes=row[2].minute)
             current_playing_track_time = datetime.timedelta(seconds=total_playing_tracks_time)
             muzblock_needed_length = int((track_end_time - current_playing_track_time).total_seconds())
             track = min(MUZBLOCKS, key=lambda x: abs(x - muzblock_needed_length))
