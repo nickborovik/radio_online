@@ -1,6 +1,9 @@
 import os
-from openpyxl import load_workbook
+import sys
 import datetime
+import smtplib
+from configparser import ConfigParser
+from openpyxl import load_workbook
 from mutagen.mp3 import MP3
 
 # DATES
@@ -13,7 +16,8 @@ MONTH = ['январь', 'февраль', 'март', 'апрель', 'май',
 
 # DIRS
 
-BASE_DIR = os.path.join('D:\\', 'INTERNET RADIO')
+# BASE_DIR = os.path.join('D:\\', 'INTERNET RADIO')
+BASE_DIR = os.getcwd()
 MEDIA_DIR = os.path.join(BASE_DIR, 'Archive_2018')
 PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
 DO_15_MIN_DIR = os.path.join(MEDIA_DIR, 'domashniy ochag 15 min')
@@ -134,6 +138,48 @@ MAIN_AUDIO_FILES = {
 
 # MAIN CODE
 
+def send_email_report(full_path_to_file, playlist_name):
+    # base_path = os.path.dirname(os.path.abspath(__file__))
+    base_path = os.getcwd()
+    config_path = os.path.join(base_path, "email.ini")
+
+    if os.path.exists(config_path):
+        cfg = ConfigParser()
+        cfg.read(config_path)
+    else:
+        print("Config not found! Exiting!")
+        sys.exit(1)
+
+    host = cfg.get("smtp", "host")
+    print(host)
+    from_addr = cfg.get("smtp", "from_addr")
+    print(from_addr)
+    password = cfg.get("smtp", "password")
+    print(password)
+
+    subject = "Playlist %s for online radio TWR not created" % playlist_name
+    to_emails = ["nick.borovik@gmail.com"]
+    cc_emails = ["borovik@twr-ua.org"]
+    bcc_emails = []
+    body_text = "File \n---\n%s\n---\nNot found\nPlease check file in directory" % full_path_to_file
+
+    BODY = "\r\n".join((
+        "From: TWR Online Radio %s" % from_addr,
+        "To: %s" % ', '.join(to_emails),
+        "CC: %s" % ', '.join(cc_emails),
+        "BCC: %s" % ', '.join(bcc_emails),
+        "Subject: %s" % subject,
+        "",
+        body_text
+    ))
+
+    emails = to_emails + cc_emails + bcc_emails
+    server = smtplib.SMTP_SSL(host, 465)
+    server.ehlo()
+    server.login(user=from_addr, password=password)
+    server.sendmail(from_addr, emails, BODY)
+    server.quit()
+
 def get_excel_info(file_name, excel_page_name):
     """Возвращает лист с книги Excel"""
     workbook = load_workbook(file_name, data_only=True)
@@ -142,8 +188,12 @@ def get_excel_info(file_name, excel_page_name):
 
 def get_mp3_file_length(full_path_to_file):
     """Возвращает длинну MP3 трека в секундах"""
-    mp3_data = MP3(full_path_to_file)
-    return int(mp3_data.info.length)
+    try:
+        mp3_data = MP3(full_path_to_file)
+        return int(mp3_data.info.length)
+    except Exception:
+        send_email_report(full_path_to_file, PLAYLIST_NAME)
+        raise Exception(f'Файл не найден {full_path_to_file}')
 
 
 def write_playlist_to_file(playlist_path, file_data):
