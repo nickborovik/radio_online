@@ -16,10 +16,10 @@ MONTH = ['январь', 'февраль', 'март', 'апрель', 'май',
 
 # DIRS
 
-# BASE_DIR = os.path.join('D:\\', 'INTERNET RADIO')
-BASE_DIR = os.getcwd()
+BASE_DIR = os.path.join('D:', 'INTERNET RADIO')
 MEDIA_DIR = os.path.join(BASE_DIR, 'Archive_2018')
-PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
+CONFIG_DIR = os.path.join(BASE_DIR, 'Playlist_auto_generator')
+PLAYLIST_DIR = os.path.join('D:', 'Playlist Radioboss')
 DO_15_MIN_DIR = os.path.join(MEDIA_DIR, 'domashniy ochag 15 min')
 
 KIEV_STUDIO_DIR_TODAY = os.path.join(
@@ -139,21 +139,18 @@ MAIN_AUDIO_FILES = {
 # MAIN CODE
 
 def send_email_report(full_path_to_file, playlist_name):
-    config_path = os.path.join(BASE_DIR, "email.ini")
+    config_path = os.path.join(CONFIG_DIR, "email.ini")
 
     if os.path.exists(config_path):
         cfg = ConfigParser()
         cfg.read(config_path)
     else:
-        print("Config not found! Exiting!")
+        print("Файл конфигурации не найден!")
         sys.exit(1)
 
     host = cfg.get("smtp", "host")
-    print(host)
     from_addr = cfg.get("smtp", "from_addr")
-    print(from_addr)
     password = cfg.get("smtp", "password")
-    print(password)
 
     subject = "Playlist %s for online radio TWR not created" % playlist_name
     to_emails = ["nick.borovik@gmail.com"]
