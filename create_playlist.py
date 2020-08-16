@@ -139,9 +139,7 @@ MAIN_AUDIO_FILES = {
 # MAIN CODE
 
 def send_email_report(full_path_to_file, playlist_name):
-    # base_path = os.path.dirname(os.path.abspath(__file__))
-    base_path = os.getcwd()
-    config_path = os.path.join(base_path, "email.ini")
+    config_path = os.path.join(BASE_DIR, "email.ini")
 
     if os.path.exists(config_path):
         cfg = ConfigParser()
@@ -188,13 +186,12 @@ def get_excel_info(file_name, excel_page_name):
 
 def get_mp3_file_length(full_path_to_file):
     """Возвращает длинну MP3 трека в секундах"""
-    try:
+    if os.path.exists(full_path_to_file):
         mp3_data = MP3(full_path_to_file)
         return int(mp3_data.info.length)
-    except Exception:
+    else:
         send_email_report(full_path_to_file, PLAYLIST_NAME)
-        raise Exception(f'Файл не найден {full_path_to_file}')
-
+        print(f'Файл {full_path_to_file} не найден')
 
 def write_playlist_to_file(playlist_path, file_data):
     """Записать плейлист в файл"""
