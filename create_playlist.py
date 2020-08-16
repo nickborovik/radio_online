@@ -16,10 +16,10 @@ MONTH = ['январь', 'февраль', 'март', 'апрель', 'май',
 
 # DIRS
 
-BASE_DIR = os.path.join('D:', 'INTERNET RADIO')
+BASE_DIR = os.path.join('D:\\', 'INTERNET RADIO')
 MEDIA_DIR = os.path.join(BASE_DIR, 'Archive_2018')
 CONFIG_DIR = os.path.join(BASE_DIR, 'Playlist_auto_generator')
-PLAYLIST_DIR = os.path.join('D:', 'Playlist Radioboss')
+PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
 DO_15_MIN_DIR = os.path.join(MEDIA_DIR, 'domashniy ochag 15 min')
 
 KIEV_STUDIO_DIR_TODAY = os.path.join(
