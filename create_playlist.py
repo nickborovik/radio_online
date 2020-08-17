@@ -177,24 +177,24 @@ def get_excel_info(file_name, excel_page_name):
         workbook = load_workbook(file_name, data_only=True)
         sheet = workbook[excel_page_name]
         return sheet
-    else:
-        mistake_subject = "Playlist %s for online radio TWR not created" % PLAYLIST_NAME
-        mistake_text = "Excel file \n---\n%s\n---\nNot found\nPlease check file in directory 'INTERNET RADIO'" % file_name
-        send_email_report(mistake_subject, mistake_text)
-        print(f'Excel файл \n{file_name}\nне найден')
-        raise SystemExit
+
+    mistake_subject = "Playlist %s for online radio TWR not created" % PLAYLIST_NAME
+    mistake_text = "Excel file \n---\n%s\n---\nNot found\nPlease check file in directory 'INTERNET RADIO'" % file_name
+    send_email_report(mistake_subject, mistake_text)
+    print(f'Excel файл \n{file_name}\nне найден')
+    raise SystemExit
 
 def get_mp3_file_length(full_path_to_file):
     """Возвращает длинну MP3 трека в секундах"""
     if os.path.exists(full_path_to_file):
         mp3_data = MP3(full_path_to_file)
         return int(mp3_data.info.length)
-    else:
-        mistake_subject = "Playlist %s for online radio TWR not created" % PLAYLIST_NAME
-        mistake_text = "MP3 file \n---\n%s\n---\nNot found\nPlease check file in the directory" % full_path_to_file
-        send_email_report(mistake_subject, mistake_text)
-        print(f'MP3 файл \n{full_path_to_file}\nне найден')
-        raise SystemExit
+
+    mistake_subject = "Playlist %s for online radio TWR not created" % PLAYLIST_NAME
+    mistake_text = "MP3 file \n---\n%s\n---\nNot found\nPlease check file in the directory" % full_path_to_file
+    send_email_report(mistake_subject, mistake_text)
+    print(f'MP3 файл \n{full_path_to_file}\nне найден')
+    raise SystemExit
 
 def write_playlist_to_file(playlist_path, file_data):
     """Записать плейлист в файл"""
