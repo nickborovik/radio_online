@@ -49,7 +49,7 @@ KHARKOV_STUDIO_DIR_TOMORROW = os.path.join(
 
 # EXCEL settings
 
-EXCEL_FILE_NAME = f'{CURRENT_DAY.strftime("%m-%Y")} Расписание онлайн вещания ({MONTH[CURRENT_DAY.month - 1]}).xlsx'
+EXCEL_FILE_NAME = f'{NEXT_DAY.strftime("%m-%Y")} Расписание онлайн вещания ({MONTH[NEXT_DAY.month - 1]}).xlsx'
 FULL_EXCEL_FILE_PATH = os.path.join(BASE_DIR, EXCEL_FILE_NAME)
 EXCEL_PAGE_NAME = f'{NEXT_DAY.day}.{NEXT_DAY.strftime("%m")}'
 
