@@ -1,5 +1,4 @@
 import os
-import sys
 import datetime
 import smtplib
 from configparser import ConfigParser
@@ -50,10 +49,7 @@ KHARKOV_STUDIO_DIR_TOMORROW = os.path.join(
 
 # EXCEL settings
 
-EXCEL_FILE_NAME = os.path.join(
-    BASE_DIR,
-    f'{CURRENT_DAY.strftime("%m-%Y")} Расписание онлайн вещания ({MONTH[CURRENT_DAY.month - 1]}).xlsx')
-
+EXCEL_FILE_NAME = f'{CURRENT_DAY.strftime("%m-%Y")} Расписание онлайн вещания ({MONTH[CURRENT_DAY.month - 1]}).xlsx'
 FULL_EXCEL_FILE_PATH = os.path.join(BASE_DIR, EXCEL_FILE_NAME)
 EXCEL_PAGE_NAME = f'{NEXT_DAY.day}.{NEXT_DAY.strftime("%m")}'
 
@@ -138,25 +134,25 @@ MAIN_AUDIO_FILES = {
 
 # MAIN CODE
 
-def send_email_report(full_path_to_file, playlist_name):
+def send_email_report(subject, text):
+    """Отправка письма в случае ошибки"""
     config_path = os.path.join(CONFIG_DIR, "email.ini")
 
     if os.path.exists(config_path):
         cfg = ConfigParser()
         cfg.read(config_path)
     else:
-        print("Файл конфигурации не найден!")
-        sys.exit(1)
+        print("Файл конфигурации email.ini не найден!")
+        raise SystemExit
 
     host = cfg.get("smtp", "host")
     from_addr = cfg.get("smtp", "from_addr")
     password = cfg.get("smtp", "password")
 
-    subject = "Playlist %s for online radio TWR not created" % playlist_name
     to_emails = ["nick.borovik@gmail.com"]
     cc_emails = ["borovik@twr-ua.org"]
     bcc_emails = []
-    body_text = "File \n---\n%s\n---\nNot found\nPlease check file in directory" % full_path_to_file
+    body_text = text
 
     BODY = "\r\n".join((
         "From: TWR Online Radio %s" % from_addr,
@@ -177,9 +173,16 @@ def send_email_report(full_path_to_file, playlist_name):
 
 def get_excel_info(file_name, excel_page_name):
     """Возвращает лист с книги Excel"""
-    workbook = load_workbook(file_name, data_only=True)
-    sheet = workbook[excel_page_name]
-    return sheet
+    if os.path.exists(file_name):
+        workbook = load_workbook(file_name, data_only=True)
+        sheet = workbook[excel_page_name]
+        return sheet
+    else:
+        mistake_subject = "Playlist %s for online radio TWR not created" % PLAYLIST_NAME
+        mistake_text = "Excel file \n---\n%s\n---\nNot found\nPlease check file in directory 'INTERNET RADIO'" % file_name
+        send_email_report(mistake_subject, mistake_text)
+        print(f'Excel файл \n{file_name}\nне найден')
+        raise SystemExit
 
 def get_mp3_file_length(full_path_to_file):
     """Возвращает длинну MP3 трека в секундах"""
@@ -187,8 +190,11 @@ def get_mp3_file_length(full_path_to_file):
         mp3_data = MP3(full_path_to_file)
         return int(mp3_data.info.length)
     else:
-        send_email_report(full_path_to_file, PLAYLIST_NAME)
-        print(f'Файл {full_path_to_file} не найден')
+        mistake_subject = "Playlist %s for online radio TWR not created" % PLAYLIST_NAME
+        mistake_text = "MP3 file \n---\n%s\n---\nNot found\nPlease check file in the directory" % full_path_to_file
+        send_email_report(mistake_subject, mistake_text)
+        print(f'MP3 файл \n{full_path_to_file}\nне найден')
+        raise SystemExit
 
 def write_playlist_to_file(playlist_path, file_data):
     """Записать плейлист в файл"""
@@ -205,7 +211,7 @@ def main():
     for row in sheet.iter_rows(min_row=4, max_row=69, max_col=6, values_only=True):
 
         if row[5] == 'муз.блок':
-            """Выбрать самый подходящий музлок и вставить в вместо пустого поля"""
+            """Выбрать самый подходящий музблок и вставить в вместо пустого поля"""
             if row[0] == 66:
                 track_end_time = datetime.timedelta(hours=23, minutes=59, seconds=59)
             else:
@@ -265,7 +271,6 @@ def main():
                 file_number = row[4]
 
             file_name = row[3]
-            # mp3_file_name = re.sub(r'\s\s', ' ', f'{file_name} {file_number}.mp3')
             mp3_file_name = f'{file_name} {file_number}.mp3'.replace('  ', ' ')
             full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
