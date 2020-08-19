@@ -13,7 +13,7 @@ NEXT_DAY = CURRENT_DAY + datetime.timedelta(days=1)
 MONTH = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
          'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь']
 
-# DIRS
+# MAIN DIRS
 
 BASE_DIR = os.path.join('D:\\', 'INTERNET RADIO')
 MEDIA_DIR = os.path.join(BASE_DIR, 'Archive_2018')
@@ -21,31 +21,17 @@ CONFIG_DIR = os.path.join(BASE_DIR, 'Playlist_auto_generator')
 PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
 DO_15_MIN_DIR = os.path.join(MEDIA_DIR, 'domashniy ochag 15 min')
 
-KIEV_STUDIO_DIR_TODAY = os.path.join(
-    BASE_DIR,
-    'Kievskaya Studia',
-    f'!{CURRENT_DAY.strftime("%m %Y")}'
-)
+KIEV_STUDIO_DIR_TODAY = os.path.join(BASE_DIR, 'Kievskaya Studia',
+                                     f'!{CURRENT_DAY.strftime("%m %Y")}')
 
-KIEV_STUDIO_DIR_TOMORROW = os.path.join(
-    BASE_DIR,
-    'Kievskaya Studia',
-    f'!{NEXT_DAY.strftime("%m %Y")}'
-)
+KIEV_STUDIO_DIR_TOMORROW = os.path.join(BASE_DIR, 'Kievskaya Studia',
+                                        f'!{NEXT_DAY.strftime("%m %Y")}')
 
-KHARKOV_STUDIO_DIR_TODAY = os.path.join(
-    BASE_DIR,
-    'KharkovTWR',
-    '1 SREDNIE VOLNI ONLINE',
-    f'{CURRENT_DAY.strftime("%m-%Y")}'
-)
+KHARKOV_STUDIO_DIR_TODAY = os.path.join(BASE_DIR, 'KharkovTWR', '1 SREDNIE VOLNI ONLINE',
+                                        f'{CURRENT_DAY.strftime("%m-%Y")}')
 
-KHARKOV_STUDIO_DIR_TOMORROW = os.path.join(
-    BASE_DIR,
-    'KharkovTWR',
-    '1 SREDNIE VOLNI ONLINE',
-    f'{NEXT_DAY.strftime("%m-%Y")}'
-)
+KHARKOV_STUDIO_DIR_TOMORROW = os.path.join(BASE_DIR, 'KharkovTWR', '1 SREDNIE VOLNI ONLINE',
+                                           f'{NEXT_DAY.strftime("%m-%Y")}')
 
 # EXCEL settings
 
@@ -59,7 +45,7 @@ PLAYLIST_NAME = f'playlist_for_{NEXT_DAY.strftime("%d%m%Y")}.m3u8'
 NEXT_PLAYLIST_NAME = f'playlist_for_{(NEXT_DAY + datetime.timedelta(days=1)).strftime("%d%m%Y")}.m3u8'
 PLAYLIST_PATH = os.path.join(PLAYLIST_DIR, PLAYLIST_NAME)
 
-# NAMES FOR FILES
+# MP3 FILES
 
 MUZBLOCKS = {
     539: '11 Kharkov time 9 min-a.mp3',
@@ -106,15 +92,15 @@ MUZBLOCKS = {
 }
 
 MAIN_AUDIO_FILES = {
-    '900 секунд доброты': ['900_sekund_dobroti_{}.mp3', 'Kharkov'],
+    '900 секунд доброты': ['RUS_KIND_{}.mp3', 'Kharkov'],
     'БА': ['RUS_BST_{}.mp3', 'Kiev'],
     'Библейские искатели': ['RUS_TSK_{}.mp3', 'Kiev'],
-    'Вивчаємо Біблію разом': ['Bible_study_{}.mp3', 'Kharkov'],
-    'ВЦП': ['UKR_PRC_{}.mp3',  'Kiev'],
-    'Герои': ['Gde_vi_geroi_{}.mp3', 'Kharkov'],
+    'Вивчаємо Біблію разом': ['UKR_SBT_{}.mp3', 'Kharkov'],
+    'ВЦП': ['UKR_PRC_{}.mp3', 'Kiev'],
+    'Герои': ['RUS_CA_{}.mp3', 'Kharkov'],
     'Голос друга': ['BEL_VFR_{}.mp3', 'Kiev'],
     'Джерельце': ['UKR_TLS_{}.mp3', 'Kiev'],
-    'ЖКОЕ': ['Zhizn_kak_ona_est_{}.mp3', 'Kharkov'],
+    'ЖКОЕ': ['RUS_LAI_{}.mp3', 'Kharkov'],
     'ЖН': ['UKR_HOPE_{}.mp3', 'Kiev'],
     'Калейдоскоп': ['UKR_KAL_{}.mp3', 'Kiev'],
     'МН': ['RUS_BOH_{}.mp3', 'Kiev'],
@@ -125,17 +111,18 @@ MAIN_AUDIO_FILES = {
     'Слово на сегодня': ['RUS_TWT_{}.mp3', 'Kiev'],
     'Стежинка': ['UKR_TLP_{}.mp3', 'Kiev'],
     'Суламита': ['RUS_SUL_{}.mp3', 'Kiev'],
-    'Табор': ['Tabor_uhodit_v_nebo_{}.mp3', 'Kharkov'],
+    'Табор': ['RUS_RCMO_{}.mp3', 'Kharkov'],
     'Тихие воды': ['RUS_SWA_{}.mp3', 'Kiev'],
     'Хлеб жизни': ['RUS_BLR_{}.mp3', 'Kiev'],
-    'Шалом': ['Shalom_{}.mp3', 'Kharkov'],
+    'Шалом': ['RUS_SHA_{}.mp3', 'Kharkov'],
     'Шанс // ГВЛ': ['UKR_MAE_{}.mp3', 'Kiev'],
 }
 
+
 # MAIN CODE
 
-def send_email_report(subject, text):
-    """Отправка письма в случае ошибки"""
+def send_email_report(subject, body_text):
+    """Отправка письма в случае ошибки создания плейлиста"""
     config_path = os.path.join(CONFIG_DIR, "email.ini")
 
     if os.path.exists(config_path):
@@ -152,14 +139,13 @@ def send_email_report(subject, text):
     to_emails = ["nick.borovik@gmail.com"]
     cc_emails = ["borovik@twr-ua.org"]
     bcc_emails = []
-    body_text = text
 
     BODY = "\r\n".join((
-        "From: TWR Online Radio %s" % from_addr,
-        "To: %s" % ', '.join(to_emails),
-        "CC: %s" % ', '.join(cc_emails),
-        "BCC: %s" % ', '.join(bcc_emails),
-        "Subject: %s" % subject,
+        f"From: TWR Online Radio {from_addr}",
+        f"To: {', '.join(to_emails)}",
+        f"CC: {', '.join(cc_emails)}",
+        f"BCC: {', '.join(bcc_emails)}",
+        f"Subject: {subject}",
         "",
         body_text
     ))
@@ -171,6 +157,7 @@ def send_email_report(subject, text):
     server.sendmail(from_addr, emails, BODY)
     server.quit()
 
+
 def get_excel_info(file_name, excel_page_name):
     """Возвращает лист с книги Excel"""
     if os.path.exists(file_name):
@@ -178,11 +165,12 @@ def get_excel_info(file_name, excel_page_name):
         sheet = workbook[excel_page_name]
         return sheet
 
-    mistake_subject = "Playlist %s for online radio TWR not created" % PLAYLIST_NAME
-    mistake_text = "Excel file \n---\n%s\n---\nNot found\nPlease check file in directory 'INTERNET RADIO'" % file_name
+    mistake_subject = f"Playlist {PLAYLIST_NAME} for online radio TWR not created"
+    mistake_text = f"Excel file \n---\n{file_name}\n---\nNot found\nPlease check file in directory 'INTERNET RADIO'"
     send_email_report(mistake_subject, mistake_text)
     print(f'Excel файл \n{file_name}\nне найден')
     raise SystemExit
+
 
 def get_mp3_file_length(full_path_to_file):
     """Возвращает длинну MP3 трека в секундах"""
@@ -190,11 +178,12 @@ def get_mp3_file_length(full_path_to_file):
         mp3_data = MP3(full_path_to_file)
         return int(mp3_data.info.length)
 
-    mistake_subject = "Playlist %s for online radio TWR not created" % PLAYLIST_NAME
-    mistake_text = "MP3 file \n---\n%s\n---\nNot found\nPlease check file in the directory" % full_path_to_file
+    mistake_subject = f"Playlist {PLAYLIST_NAME} for online radio TWR not created"
+    mistake_text = f"MP3 file \n---\n{full_path_to_file}\n---\nNot found\nPlease check file in the directory"
     send_email_report(mistake_subject, mistake_text)
     print(f'MP3 файл \n{full_path_to_file}\nне найден')
     raise SystemExit
+
 
 def write_playlist_to_file(playlist_path, file_data):
     """Записать плейлист в файл"""
@@ -211,7 +200,7 @@ def main():
     for row in sheet.iter_rows(min_row=4, max_row=69, max_col=6, values_only=True):
 
         if row[5] == 'муз.блок':
-            """Выбрать самый подходящий музблок и вставить в вместо пустого поля"""
+            """Выбрать самый подходящий музблок и вставить вместо пустого поля"""
             if row[0] == 66:
                 track_end_time = datetime.timedelta(hours=23, minutes=59, seconds=59)
             else:
@@ -219,8 +208,8 @@ def main():
             current_playing_track_time = datetime.timedelta(seconds=total_playing_tracks_time)
             muzblock_needed_length = int((track_end_time - current_playing_track_time).total_seconds())
             track = min(MUZBLOCKS, key=lambda x: abs(x - muzblock_needed_length))
-            mp3_file_name = MUZBLOCKS[track]
             file_name = 'Muzblock'
+            mp3_file_name = MUZBLOCKS[track]
             full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
 
         elif row[5] == 'ГОДИНА БОЖОГО СЛОВА':
