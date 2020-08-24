@@ -4,6 +4,9 @@ import smtplib
 from configparser import ConfigParser
 from openpyxl import load_workbook
 from mutagen.mp3 import MP3
+from email.header import Header
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 # DATES
 
@@ -43,26 +46,30 @@ EXCEL_PAGE_NAME = f'{NEXT_DAY.day}.{NEXT_DAY.strftime("%m")}'
 
 PLAYLIST_NAME = f'playlist_for_{NEXT_DAY.strftime("%d%m%Y")}.m3u8'
 NEXT_PLAYLIST_NAME = f'playlist_for_{(NEXT_DAY + datetime.timedelta(days=1)).strftime("%d%m%Y")}.m3u8'
-PLAYLIST_PATH = os.path.join(PLAYLIST_DIR, PLAYLIST_NAME)
+FULL_PLAYLIST_PATH = os.path.join(PLAYLIST_DIR, PLAYLIST_NAME)
+
+# MISTAKE REPORT settings
+
+MISTAKE_SUBJECT = f"Playlist {PLAYLIST_NAME} for online radio TWR not created"
 
 # MP3 FILES
 
 MUZBLOCKS = {
     539: '11 Kharkov time 9 min-a.mp3',
     540: '12 Kharkov time 9 min-a.mp3',
-    599: '14 Kharkov time 10 min-a.mp3',
-    601: '13 Kharkov time 10 min-a.mp3',
-    602: '15 Kharkov time 10 min-a.mp3',
-    657: '09 Kharkov time 11 min-a.mp3',
-    658: '04 Kharkov time 11 min-a.mp3',
-    659: '10 Kharkov time 11 min-a.mp3',
-    660: '03 Kharkov time 11 min-a.mp3',
-    661: '01 Kharkov time 11 min-a.mp3',
-    662: '06 Kharkov time 11 min-a.mp3',
-    663: '05 Kharkov time 11 min-a.mp3',
-    664: '02 Kharkov time 11 min-a.mp3',
-    665: '08 Kharkov time 11 min-a.mp3',
-    666: '07 Kharkov time 11 min-a.mp3',
+    570: '14 Kharkov time 10 min-a.mp3',
+    580: '13 Kharkov time 10 min-a.mp3',
+    665: '15 Kharkov time 10 min-a.mp3',
+    670: '09 Kharkov time 11 min-a.mp3',
+    675: '04 Kharkov time 11 min-a.mp3',
+    680: '10 Kharkov time 11 min-a.mp3',
+    685: '03 Kharkov time 11 min-a.mp3',
+    690: '01 Kharkov time 11 min-a.mp3',
+    695: '06 Kharkov time 11 min-a.mp3',
+    700: '05 Kharkov time 11 min-a.mp3',
+    705: '02 Kharkov time 11 min-a.mp3',
+    710: '08 Kharkov time 11 min-a.mp3',
+    720: '07 Kharkov time 11 min-a.mp3',
     734: 'muzblok_01_time_12.15.mp3',
     759: 'muzblok_18_time_12.40.mp3',
     760: 'muzblok_12_time_12.40.mp3',
@@ -135,26 +142,19 @@ def send_email_report(subject, body_text):
     host = cfg.get("smtp", "host")
     from_addr = cfg.get("smtp", "from_addr")
     password = cfg.get("smtp", "password")
+    to_emails = cfg.get("smtp", "to_emails")
 
-    to_emails = ["nick.borovik@gmail.com"]
-    cc_emails = ["borovik@twr-ua.org"]
-    bcc_emails = []
+    msg = MIMEMultipart()
+    msg['From'] = from_addr
+    msg['To'] = to_emails
+    msg['Subject'] = Header(subject)
 
-    BODY = "\r\n".join((
-        f"From: TWR Online Radio {from_addr}",
-        f"To: {', '.join(to_emails)}",
-        f"CC: {', '.join(cc_emails)}",
-        f"BCC: {', '.join(bcc_emails)}",
-        f"Subject: {subject}",
-        "",
-        body_text
-    ))
+    msg.attach(MIMEText(body_text, 'plain', 'cp1251'))
 
-    emails = to_emails + cc_emails + bcc_emails
     server = smtplib.SMTP_SSL(host, 465)
     server.ehlo()
     server.login(user=from_addr, password=password)
-    server.sendmail(from_addr, emails, BODY)
+    server.sendmail(from_addr, [to_emails], msg.as_string())
     server.quit()
 
 
@@ -165,11 +165,80 @@ def get_excel_info(file_name, excel_page_name):
         sheet = workbook[excel_page_name]
         return sheet
 
-    mistake_subject = f"Playlist {PLAYLIST_NAME} for online radio TWR not created"
-    mistake_text = f"Excel file \n---\n{file_name}\n---\nNot found\nPlease check file in directory 'INTERNET RADIO'"
-    send_email_report(mistake_subject, mistake_text)
+    mistake_text = f"Excel файл \n---\n{file_name}\n---\nНе найден\nПожалуйста, проверьте файл в папке 'INTERNET RADIO'"
+    send_email_report(MISTAKE_SUBJECT, mistake_text)
     print(f'Excel файл \n{file_name}\nне найден')
     raise SystemExit
+
+
+def get_muzblock_with_needed_length(row, total_playing_tracks_time):
+    """Выбрать самый подходящий музблок"""
+    track_end_time = datetime.timedelta(hours=row[2].hour, minutes=row[2].minute)
+    current_playing_track_time = datetime.timedelta(seconds=total_playing_tracks_time)
+    muzblock_needed_length = int((track_end_time - current_playing_track_time).total_seconds())
+    track = min(MUZBLOCKS, key=lambda x: abs(x - muzblock_needed_length))
+    return MUZBLOCKS[track]
+
+
+def extract_excel_data(row, total_playing_tracks_time):
+    if row[5] == 'муз.блок':
+        """Получаем музблок"""
+        file_name = 'Muzblock'
+        mp3_file_name = get_muzblock_with_needed_length(row, total_playing_tracks_time)
+        full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
+
+    elif row[5] == 'ГОДИНА БОЖОГО СЛОВА':
+        """Конкретный случай для передачи Година Божого Слова"""
+        file_number = row[4]
+        file_name = 'Online radio blok'
+        mp3_file_name = f'{file_name} {file_number}.mp3'
+        full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
+
+    elif row[5] == 'ДО (15)':
+        """Конкретный случай для передачи Домашний очаг 15 минут"""
+        file_number = row[4]
+        file_name = row[3]
+        mp3_file_name = f'{file_name} {file_number}.mp3'
+        full_mp3_file_path = os.path.join(DO_15_MIN_DIR, mp3_file_name)
+
+    elif 30 > row[0] >= 26:
+        """Повтор за вчера"""
+        date = CURRENT_DAY.strftime('%Y%m%d')
+        file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
+        mp3_file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
+
+        if MAIN_AUDIO_FILES[row[5]][1] == 'Kiev':
+            file_dir = KIEV_STUDIO_DIR_TODAY
+        else:
+            file_dir = KHARKOV_STUDIO_DIR_TODAY
+        full_mp3_file_path = os.path.join(file_dir, mp3_file_name)
+
+    elif 63 > row[0] >= 59:
+        """Прямой эфир"""
+        date = NEXT_DAY.strftime('%Y%m%d')
+        file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
+        mp3_file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
+
+        if MAIN_AUDIO_FILES[row[5]][1] == 'Kiev':
+            file_dir = KIEV_STUDIO_DIR_TOMORROW
+        else:
+            file_dir = KHARKOV_STUDIO_DIR_TOMORROW
+        full_mp3_file_path = os.path.join(file_dir, mp3_file_name)
+
+    else:
+        """Все остальные случаи, где файл из папки Archive_2018"""
+        if 'Лекция' in str(row[4]):
+            file_number = str(row[4]).replace('Лекция', 'L')
+        elif 'М.В.' in str(row[4]):
+            file_number = str(row[4]).replace('М.В.', 'M')
+        else:
+            file_number = row[4]
+
+        file_name = row[3]
+        mp3_file_name = f'{file_name} {file_number}.mp3'.replace('  ', ' ')
+        full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
+
+    return file_name, full_mp3_file_path
 
 
 def get_mp3_file_length(full_path_to_file):
@@ -178,9 +247,8 @@ def get_mp3_file_length(full_path_to_file):
         mp3_data = MP3(full_path_to_file)
         return int(mp3_data.info.length)
 
-    mistake_subject = f"Playlist {PLAYLIST_NAME} for online radio TWR not created"
-    mistake_text = f"MP3 file \n---\n{full_path_to_file}\n---\nNot found\nPlease check file in the directory"
-    send_email_report(mistake_subject, mistake_text)
+    mistake_text = f"MP3 файл \n---\n{full_path_to_file}\n---\nНе найден\nПроверьте наличие файла в папке"
+    send_email_report(MISTAKE_SUBJECT, mistake_text)
     print(f'MP3 файл \n{full_path_to_file}\nне найден')
     raise SystemExit
 
@@ -193,83 +261,21 @@ def write_playlist_to_file(playlist_path, file_data):
 
 
 def main():
-    file_data = ['#EXTM3U\n']
+    playlist_data = ['#EXTM3U\n']
     sheet = get_excel_info(FULL_EXCEL_FILE_PATH, EXCEL_PAGE_NAME)
     total_playing_tracks_time = 0
 
     for row in sheet.iter_rows(min_row=4, max_row=69, max_col=6, values_only=True):
 
-        if row[5] == 'муз.блок':
-            """Выбрать самый подходящий музблок и вставить вместо пустого поля"""
-            if row[0] == 66:
-                track_end_time = datetime.timedelta(hours=23, minutes=59, seconds=59)
-            else:
-                track_end_time = datetime.timedelta(hours=row[2].hour, minutes=row[2].minute)
-            current_playing_track_time = datetime.timedelta(seconds=total_playing_tracks_time)
-            muzblock_needed_length = int((track_end_time - current_playing_track_time).total_seconds())
-            track = min(MUZBLOCKS, key=lambda x: abs(x - muzblock_needed_length))
-            file_name = 'Muzblock'
-            mp3_file_name = MUZBLOCKS[track]
-            full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
-
-        elif row[5] == 'ГОДИНА БОЖОГО СЛОВА':
-            """Конкретный случай для передачи Година Божого Слова"""
-            file_number = row[4]
-            file_name = 'Online radio blok'
-            mp3_file_name = f'{file_name} {file_number}.mp3'
-            full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
-
-        elif row[5] == 'ДО (15)':
-            """Конкретный случай для передачи Домашний очаг 15 минут"""
-            file_number = row[4]
-            file_name = row[3]
-            mp3_file_name = f'{file_name} {file_number}.mp3'
-            full_mp3_file_path = os.path.join(DO_15_MIN_DIR, mp3_file_name)
-
-        elif 30 > row[0] >= 26:
-            """Повтор за вчера"""
-            date = CURRENT_DAY.strftime('%Y%m%d')
-            file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
-            mp3_file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
-
-            if MAIN_AUDIO_FILES[row[5]][1] == 'Kiev':
-                file_dir = KIEV_STUDIO_DIR_TODAY
-            else:
-                file_dir = KHARKOV_STUDIO_DIR_TODAY
-            full_mp3_file_path = os.path.join(file_dir, mp3_file_name)
-
-        elif 63 > row[0] >= 59:
-            """Прямой эфир"""
-            date = NEXT_DAY.strftime('%Y%m%d')
-            file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
-            mp3_file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
-
-            if MAIN_AUDIO_FILES[row[5]][1] == 'Kiev':
-                file_dir = KIEV_STUDIO_DIR_TOMORROW
-            else:
-                file_dir = KHARKOV_STUDIO_DIR_TOMORROW
-            full_mp3_file_path = os.path.join(file_dir, mp3_file_name)
-
-        else:
-            """Все остальные случаи, где файл из папки Archive_2018"""
-            if 'Лекция' in str(row[4]):
-                file_number = str(row[4]).replace('Лекция', 'L')
-            elif 'М.В.' in str(row[4]):
-                file_number = str(row[4]).replace('М.В.', 'M')
-            else:
-                file_number = row[4]
-
-            file_name = row[3]
-            mp3_file_name = f'{file_name} {file_number}.mp3'.replace('  ', ' ')
-            full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
-
+        file_name, full_mp3_file_path = extract_excel_data(row, total_playing_tracks_time)
         mp3_file_length = get_mp3_file_length(full_mp3_file_path)
-        total_playing_tracks_time += mp3_file_length
-        file_data.append(f'#EXTINF:{mp3_file_length},{file_name}\n')
-        file_data.append(f'{full_mp3_file_path}\n')
-    file_data.append(f'load {os.path.join(PLAYLIST_DIR, NEXT_PLAYLIST_NAME)}.command')
 
-    write_playlist_to_file(PLAYLIST_PATH, file_data)
+        total_playing_tracks_time += mp3_file_length
+        playlist_data.append(f'#EXTINF:{mp3_file_length},{file_name}\n{full_mp3_file_path}\n')
+
+    playlist_data.append(f'load {os.path.join(PLAYLIST_DIR, NEXT_PLAYLIST_NAME)}.command')
+
+    write_playlist_to_file(FULL_PLAYLIST_PATH, playlist_data)
 
 
 if __name__ == '__main__':
