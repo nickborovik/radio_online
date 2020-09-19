@@ -13,41 +13,43 @@ from email.mime.text import MIMEText
 # DATES
 
 CUR_DAY = datetime.datetime.today().date()
-NEXT_DAY = CUR_DAY + datetime.timedelta(days=1)
+TM_DAY = CUR_DAY + datetime.timedelta(days=1)
+AT_DAY = TM_DAY + datetime.timedelta(days=1)
 
 MONTH = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
          'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь']
 
 # MAIN DIRS
 
-ROOT = Path('D:/')
-BASE_DIR = ROOT / 'INTERNET RADIO'
-MEDIA_DIR = BASE_DIR / 'Archive_2018'
-CONFIG_DIR = BASE_DIR / 'Playlist_auto_generator'
-PLAYLIST_DIR = ROOT / 'Playlist Radioboss'
-DO_15_MIN_DIR = MEDIA_DIR / 'domashniy ochag 15 min'
+ROOT_DIR = Path('D:/')
+BASE_DIR = ROOT_DIR / 'INTERNET RADIO'
+ARCH_DIR = BASE_DIR / 'Archive_2018'
+CONF_DIR = BASE_DIR / 'Playlist_auto_generator'
+DO_15_DIR = ARCH_DIR / 'domashniy ochag 15 min'
 
 KIEV_ST_DIR_TODAY = BASE_DIR / 'Kievskaya Studia' / f'!{CUR_DAY.strftime("%m %Y")}'
-KIEV_ST_DIR_TOMORROW = BASE_DIR / 'Kievskaya Studia' / f'!{NEXT_DAY.strftime("%m %Y")}'
+KIEV_ST_DIR_TOMOR = BASE_DIR / 'Kievskaya Studia' / f'!{TM_DAY.strftime("%m %Y")}'
 
 KHAR_ST_DIR_TODAY = BASE_DIR / 'KharkovTWR' / '1 SREDNIE VOLNI ONLINE' / f'{CUR_DAY.strftime("%m-%Y")}'
-KHAR_ST_DIR_TOMORROW = BASE_DIR / 'KharkovTWR' / '1 SREDNIE VOLNI ONLINE' / f'{NEXT_DAY.strftime("%m-%Y")}'
+KHAR_ST_DIR_TOMOR = BASE_DIR / 'KharkovTWR' / '1 SREDNIE VOLNI ONLINE' / f'{TM_DAY.strftime("%m-%Y")}'
 
 # EXCEL settings
 
-EXCEL_FILE_NAME = f'{NEXT_DAY.strftime("%m-%Y")} Расписание онлайн вещания ({MONTH[NEXT_DAY.month - 1]}).xlsx'
+EXCEL_FILE_NAME = f'{TM_DAY.strftime("%m-%Y")} Расписание онлайн вещания ({MONTH[TM_DAY.month - 1]}).xlsx'
 EXCEL_FILE_PATH = BASE_DIR / EXCEL_FILE_NAME
-EXCEL_PAGE_NAME = f'{NEXT_DAY.day}.{NEXT_DAY.strftime("%m")}'
+EXCEL_PAGE_NAME = f'{TM_DAY.day}.{TM_DAY.strftime("%m")}'
 
 # PLAYLIST settings
 
-PLAYLIST_NAME = f'playlist_for_{NEXT_DAY.strftime("%d%m%Y")}.m3u8'
-NEXT_PLAYLIST_NAME = f'playlist_for_{(NEXT_DAY + datetime.timedelta(days=1)).strftime("%d%m%Y")}.m3u8'
-FULL_PLAYLIST_PATH = PLAYLIST_DIR / PLAYLIST_NAME
+PLAYLIST_DIR = ROOT_DIR / 'Playlist Radioboss'
+CUR_PLAYLIST_NAME = f'playlist_for_{TM_DAY.strftime("%d%m%Y")}.m3u8'
+TM_PLAYLIST_NAME = f'playlist_for_{AT_DAY.strftime("%d%m%Y")}.m3u8'
+CUR_PLAYLIST_PATH = PLAYLIST_DIR / CUR_PLAYLIST_NAME
+TM_PLAYLIST_PATH = PLAYLIST_DIR / TM_PLAYLIST_NAME
 
 # MISTAKE REPORT settings
 
-MISTAKE_SUBJECT = f"Playlist {PLAYLIST_NAME} for online radio TWR not created"
+EMAIL_SUBJ = f"Плейлист {CUR_PLAYLIST_NAME} для онлайн радио ТМР не был создан"
 
 # MP3 FILES
 
@@ -95,7 +97,7 @@ MUZBLOCKS = {
     977: 'muzblok_25_time_16.18.mp3',
 }
 
-MAIN_AUDIO_FILES = {
+LIVE_FILES = {
     '900 секунд доброты': ['RUS_KIND_{}.mp3', 'Kharkov'],
     'БА': ['RUS_BST_{}.mp3', 'Kiev'],
     'Библейские искатели': ['RUS_TSK_{}.mp3', 'Kiev'],
@@ -127,7 +129,7 @@ MAIN_AUDIO_FILES = {
 
 def send_email_report(subject, body_text):
     """Отправка письма в случае ошибки создания плейлиста"""
-    config_path = CONFIG_DIR / "email.ini"
+    config_path = CONF_DIR / "email.ini"
 
     if config_path.exists():
         cfg = ConfigParser()
@@ -155,126 +157,113 @@ def send_email_report(subject, body_text):
     server.quit()
 
 
-def get_excel_info(file_name, excel_page_name):
+def get_excel_sheet(file_name, excel_page_name):
     """Возвращает лист с книги Excel"""
     if file_name.exists():
         workbook = load_workbook(file_name, data_only=True)
         sheet = workbook[excel_page_name]
         return sheet
 
-    mistake_text = f"Excel файл \n---\n{file_name}\n---\nНе найден\nПожалуйста, проверьте файл в папке 'INTERNET RADIO'"
-    send_email_report(MISTAKE_SUBJECT, mistake_text)
-    print(f'Excel файл \n{file_name}\nне найден')
+    body_text = f"Excel файл \n---\n{file_name.absolute()}\n---\nНе найден\nПроверьте файл в папке 'INTERNET RADIO'"
+    send_email_report(EMAIL_SUBJ, body_text)
+    print(f'Excel файл \n{file_name.absolute()}\nне найден')
     raise SystemExit
 
 
-def get_muzblock_with_needed_length(row, total_playing_tracks_time):
+def get_muzblock(row, tracks_time_total):
     """Выбрать самый подходящий музблок"""
-    hours, minutes = (23, 59) if row[2] == datetime.time(0, 0) else (row[2].hour, row[2].minute)
-    track_end_time = datetime.timedelta(hours=hours, minutes=minutes)
-    current_playing_track_time = datetime.timedelta(seconds=total_playing_tracks_time)
-    muzblock_needed_length = int((track_end_time - current_playing_track_time).total_seconds())
-    track = min(MUZBLOCKS, key=lambda x: abs(x - muzblock_needed_length))
+    h, m = (23, 59) if row[2] == datetime.time(0, 0) else (row[2].hour, row[2].minute)
+    track_end_time = datetime.timedelta(hours=h, minutes=m)
+    tracks_time = datetime.timedelta(seconds=tracks_time_total)
+    file_duration = int((track_end_time - tracks_time).total_seconds())
+    track = min(MUZBLOCKS, key=lambda x: abs(x - file_duration))
     return MUZBLOCKS[track]
 
 
-def extract_excel_data(row, total_playing_tracks_time):
+def get_excel_data(row, tracks_time_total):
     if row[5] == 'муз.блок':
         """Получаем музблок"""
-        file_name = 'Muzblock'
-        mp3_file_name = get_muzblock_with_needed_length(row, total_playing_tracks_time)
-        full_mp3_file_path = MEDIA_DIR / mp3_file_name
+        file_title = 'Muzblock'
+        file_name = get_muzblock(row, tracks_time_total)
+        file_path = ARCH_DIR / file_name
 
     elif row[5] == 'ГОДИНА БОЖОГО СЛОВА':
         """Конкретный случай для передачи Година Божого Слова"""
-        file_number = row[4]
-        file_name = 'Online radio blok'
-        mp3_file_name = f'{file_name} {file_number}.mp3'
-        full_mp3_file_path = MEDIA_DIR / mp3_file_name
+        file_num = row[4]
+        file_title = 'Online radio blok'
+        file_name = f'{file_title} {file_num}.mp3'
+        file_path = ARCH_DIR / file_name
 
     elif row[5] == 'ДО (15)':
         """Конкретный случай для передачи Домашний очаг 15 минут"""
-        file_number = row[4]
-        file_name = row[3]
-        mp3_file_name = f'{file_name} {file_number}.mp3'
-        # full_mp3_file_path = os.path.join(DO_15_MIN_DIR, mp3_file_name)
-        full_mp3_file_path = DO_15_MIN_DIR / mp3_file_name
+        file_num = row[4]
+        file_title = row[3]
+        file_name = f'{file_title} {file_num}.mp3'
+        file_path = DO_15_DIR / file_name
 
     elif 30 > row[0] >= 26:
         """Повтор за вчера"""
         date = CUR_DAY.strftime('%Y%m%d')
-        file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
-        mp3_file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
-
-        if MAIN_AUDIO_FILES[row[5]][1] == 'Kiev':
-            file_dir = KIEV_ST_DIR_TODAY
-        else:
-            file_dir = KHAR_ST_DIR_TODAY
-        full_mp3_file_path = file_dir / mp3_file_name
+        file_title = LIVE_FILES[row[5]][0].format(date)
+        file_name = LIVE_FILES[row[5]][0].format(date)
+        file_path = KIEV_ST_DIR_TODAY if LIVE_FILES[row[5]][1] == 'Kiev' else KHAR_ST_DIR_TODAY / file_name
 
     elif 63 > row[0] >= 59:
         """Прямой эфир"""
-        date = NEXT_DAY.strftime('%Y%m%d')
-        file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
-        mp3_file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
-
-        if MAIN_AUDIO_FILES[row[5]][1] == 'Kiev':
-            file_dir = KIEV_ST_DIR_TOMORROW
-        else:
-            file_dir = KHAR_ST_DIR_TOMORROW
-        full_mp3_file_path = file_dir / mp3_file_name
+        date = TM_DAY.strftime('%Y%m%d')
+        file_title = LIVE_FILES[row[5]][0].format(date)
+        file_name = LIVE_FILES[row[5]][0].format(date)
+        file_path = KIEV_ST_DIR_TOMOR if LIVE_FILES[row[5]][1] == 'Kiev' else KHAR_ST_DIR_TOMOR / file_name
 
     else:
         """Все остальные случаи, где файл из папки Archive_2018"""
-        if 'Лекция' in str(row[4]):
-            file_number = str(row[4]).replace('Лекция', 'L')
-        elif 'М.В.' in str(row[4]):
-            file_number = str(row[4]).replace('М.В.', 'M')
+        data = str(row[4])
+        if 'Лекция' in data:
+            file_num = data.replace('Лекция', 'L')
+        elif 'М.В.' in data:
+            file_num = data.replace('М.В.', 'M')
         else:
-            file_number = row[4]
+            file_num = data
 
-        file_name = row[3]
-        mp3_file_name = f'{file_name} {file_number}.mp3'.replace('  ', ' ')
-        full_mp3_file_path = MEDIA_DIR / mp3_file_name
+        file_title = row[3]
+        file_name = f'{file_title} {file_num}.mp3'.replace('  ', ' ')
+        file_path = ARCH_DIR / file_name
 
-    return file_name, full_mp3_file_path
+    return file_title, file_path
 
 
-def get_mp3_file_length(full_path_to_file):
+def get_file_duration(file_path):
     """Возвращает длинну MP3 трека в секундах"""
-    if full_path_to_file.exists():
-        mp3_data = MP3(full_path_to_file)
-        return int(mp3_data.info.length)
+    if file_path.exists():
+        mp3 = MP3(file_path)
+        return int(mp3.info.length)
 
-    mistake_text = f"MP3 файл \n---\n{full_path_to_file}\n---\nНе найден\nПроверьте наличие файла в папке"
-    send_email_report(MISTAKE_SUBJECT, mistake_text)
-    print(f'MP3 файл \n{full_path_to_file}\nне найден')
+    email_text = f"MP3 файл \n---\n{file_path.absolute()}\n---\nНе найден\nПроверьте наличие файла в папке"
+    send_email_report(EMAIL_SUBJ, email_text)
+    print(f'MP3 файл \n{file_path.absolute()}\nне найден')
     raise SystemExit
 
 
-def write_playlist_to_file(playlist_path, file_data):
+def write_playlist(playlist_path, playlist_data):
     """Записать плейлист в файл"""
     with open(playlist_path, 'w') as write_file:
-        write_file.writelines(file_data)
-    print(f'Плейлист на {NEXT_DAY.strftime("%d.%m.%Y")} готов и находится в папке \n{PLAYLIST_DIR}')
+        write_file.writelines(playlist_data)
+    print(f'Плейлист на {TM_DAY.strftime("%d.%m.%Y")} готов и находится в папке \n{PLAYLIST_DIR.absolute()}')
 
 
 def main():
     playlist_data = ['#EXTM3U\n']
-    sheet = get_excel_info(EXCEL_FILE_PATH, EXCEL_PAGE_NAME)
-    total_playing_tracks_time = 0
+    sheet = get_excel_sheet(EXCEL_FILE_PATH, EXCEL_PAGE_NAME)
+    tracks_time_total = 0
 
     for row in sheet.iter_rows(min_row=4, max_row=69, max_col=6, values_only=True):
+        file_name, file_path = get_excel_data(row, tracks_time_total)
+        file_duration = get_file_duration(file_path)
+        tracks_time_total += file_duration
+        playlist_data.append(f'#EXTINF:{file_duration},{file_name}\n{file_path}\n')
 
-        file_name, full_mp3_file_path = extract_excel_data(row, total_playing_tracks_time)
-        mp3_file_length = get_mp3_file_length(full_mp3_file_path)
-
-        total_playing_tracks_time += mp3_file_length
-        playlist_data.append(f'#EXTINF:{mp3_file_length},{file_name}\n{full_mp3_file_path}\n')
-
-    playlist_data.append(f'load {PLAYLIST_DIR / NEXT_PLAYLIST_NAME}.command')
-
-    write_playlist_to_file(FULL_PLAYLIST_PATH, playlist_data)
+    playlist_data.append(f'load {TM_PLAYLIST_PATH}.command')
+    write_playlist(CUR_PLAYLIST_PATH, playlist_data)
 
 
 if __name__ == '__main__':
