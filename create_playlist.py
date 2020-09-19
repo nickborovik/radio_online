@@ -206,14 +206,16 @@ def get_excel_data(row, tracks_time_total):
         date = CUR_DAY.strftime('%Y%m%d')
         file_title = LIVE_FILES[row[5]][0].format(date)
         file_name = LIVE_FILES[row[5]][0].format(date)
-        file_path = KIEV_ST_DIR_TODAY if LIVE_FILES[row[5]][1] == 'Kiev' else KHAR_ST_DIR_TODAY / file_name
+        file_dir = KIEV_ST_DIR_TODAY if LIVE_FILES[row[5]][1] == 'Kiev' else KHAR_ST_DIR_TODAY
+        file_path = file_dir / file_name
 
     elif 63 > row[0] >= 59:
         """Прямой эфир"""
         date = TM_DAY.strftime('%Y%m%d')
         file_title = LIVE_FILES[row[5]][0].format(date)
         file_name = LIVE_FILES[row[5]][0].format(date)
-        file_path = KIEV_ST_DIR_TOMOR if LIVE_FILES[row[5]][1] == 'Kiev' else KHAR_ST_DIR_TOMOR / file_name
+        file_dir = KIEV_ST_DIR_TOMOR if LIVE_FILES[row[5]][1] == 'Kiev' else KHAR_ST_DIR_TOMOR
+        file_path = file_dir / file_name
 
     else:
         """Все остальные случаи, где файл из папки Archive_2018"""
