@@ -1,6 +1,6 @@
-import os
 import datetime
 import smtplib
+from pathlib import Path
 from configparser import ConfigParser
 from openpyxl import load_workbook
 from mutagen.mp3 import MP3
@@ -8,45 +8,43 @@ from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+# STATIC SETTINGS
+
 # DATES
 
-CURRENT_DAY = datetime.datetime.today().date()
-NEXT_DAY = CURRENT_DAY + datetime.timedelta(days=1)
+CUR_DAY = datetime.datetime.today().date()
+NEXT_DAY = CUR_DAY + datetime.timedelta(days=1)
 
 MONTH = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
          'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь']
 
 # MAIN DIRS
 
-BASE_DIR = os.path.join('D:\\', 'INTERNET RADIO')
-MEDIA_DIR = os.path.join(BASE_DIR, 'Archive_2018')
-CONFIG_DIR = os.path.join(BASE_DIR, 'Playlist_auto_generator')
-PLAYLIST_DIR = os.path.join('D:\\', 'Playlist Radioboss')
-DO_15_MIN_DIR = os.path.join(MEDIA_DIR, 'domashniy ochag 15 min')
+ROOT = Path('D:/')
+BASE_DIR = ROOT / 'INTERNET RADIO'
+MEDIA_DIR = BASE_DIR / 'Archive_2018'
+CONFIG_DIR = BASE_DIR / 'Playlist_auto_generator'
+PLAYLIST_DIR = ROOT / 'Playlist Radioboss'
+DO_15_MIN_DIR = MEDIA_DIR / 'domashniy ochag 15 min'
+print(DO_15_MIN_DIR)
 
-KIEV_STUDIO_DIR_TODAY = os.path.join(BASE_DIR, 'Kievskaya Studia',
-                                     f'!{CURRENT_DAY.strftime("%m %Y")}')
+KIEV_ST_DIR_TODAY = BASE_DIR / 'Kievskaya Studia' / f'!{CUR_DAY.strftime("%m %Y")}'
+KIEV_ST_DIR_TOMORROW = BASE_DIR / 'Kievskaya Studia' / f'!{NEXT_DAY.strftime("%m %Y")}'
 
-KIEV_STUDIO_DIR_TOMORROW = os.path.join(BASE_DIR, 'Kievskaya Studia',
-                                        f'!{NEXT_DAY.strftime("%m %Y")}')
-
-KHARKOV_STUDIO_DIR_TODAY = os.path.join(BASE_DIR, 'KharkovTWR', '1 SREDNIE VOLNI ONLINE',
-                                        f'{CURRENT_DAY.strftime("%m-%Y")}')
-
-KHARKOV_STUDIO_DIR_TOMORROW = os.path.join(BASE_DIR, 'KharkovTWR', '1 SREDNIE VOLNI ONLINE',
-                                           f'{NEXT_DAY.strftime("%m-%Y")}')
+KHAR_ST_DIR_TODAY = BASE_DIR / 'KharkovTWR' / '1 SREDNIE VOLNI ONLINE' / f'{CUR_DAY.strftime("%m-%Y")}'
+KHAR_ST_DIR_TOMORROW = BASE_DIR / 'KharkovTWR' / '1 SREDNIE VOLNI ONLINE' / f'{NEXT_DAY.strftime("%m-%Y")}'
 
 # EXCEL settings
 
 EXCEL_FILE_NAME = f'{NEXT_DAY.strftime("%m-%Y")} Расписание онлайн вещания ({MONTH[NEXT_DAY.month - 1]}).xlsx'
-FULL_EXCEL_FILE_PATH = os.path.join(BASE_DIR, EXCEL_FILE_NAME)
+EXCEL_FILE_PATH = BASE_DIR / EXCEL_FILE_NAME
 EXCEL_PAGE_NAME = f'{NEXT_DAY.day}.{NEXT_DAY.strftime("%m")}'
 
 # PLAYLIST settings
 
 PLAYLIST_NAME = f'playlist_for_{NEXT_DAY.strftime("%d%m%Y")}.m3u8'
 NEXT_PLAYLIST_NAME = f'playlist_for_{(NEXT_DAY + datetime.timedelta(days=1)).strftime("%d%m%Y")}.m3u8'
-FULL_PLAYLIST_PATH = os.path.join(PLAYLIST_DIR, PLAYLIST_NAME)
+FULL_PLAYLIST_PATH = PLAYLIST_DIR / PLAYLIST_NAME
 
 # MISTAKE REPORT settings
 
@@ -130,9 +128,9 @@ MAIN_AUDIO_FILES = {
 
 def send_email_report(subject, body_text):
     """Отправка письма в случае ошибки создания плейлиста"""
-    config_path = os.path.join(CONFIG_DIR, "email.ini")
+    config_path = CONFIG_DIR / "email.ini"
 
-    if os.path.exists(config_path):
+    if config_path.exists():
         cfg = ConfigParser()
         cfg.read(config_path)
     else:
@@ -160,7 +158,7 @@ def send_email_report(subject, body_text):
 
 def get_excel_info(file_name, excel_page_name):
     """Возвращает лист с книги Excel"""
-    if os.path.exists(file_name):
+    if file_name.exists():
         workbook = load_workbook(file_name, data_only=True)
         sheet = workbook[excel_page_name]
         return sheet
@@ -186,33 +184,34 @@ def extract_excel_data(row, total_playing_tracks_time):
         """Получаем музблок"""
         file_name = 'Muzblock'
         mp3_file_name = get_muzblock_with_needed_length(row, total_playing_tracks_time)
-        full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
+        full_mp3_file_path = MEDIA_DIR / mp3_file_name
 
     elif row[5] == 'ГОДИНА БОЖОГО СЛОВА':
         """Конкретный случай для передачи Година Божого Слова"""
         file_number = row[4]
         file_name = 'Online radio blok'
         mp3_file_name = f'{file_name} {file_number}.mp3'
-        full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
+        full_mp3_file_path = MEDIA_DIR / mp3_file_name
 
     elif row[5] == 'ДО (15)':
         """Конкретный случай для передачи Домашний очаг 15 минут"""
         file_number = row[4]
         file_name = row[3]
         mp3_file_name = f'{file_name} {file_number}.mp3'
-        full_mp3_file_path = os.path.join(DO_15_MIN_DIR, mp3_file_name)
+        # full_mp3_file_path = os.path.join(DO_15_MIN_DIR, mp3_file_name)
+        full_mp3_file_path = DO_15_MIN_DIR / mp3_file_name
 
     elif 30 > row[0] >= 26:
         """Повтор за вчера"""
-        date = CURRENT_DAY.strftime('%Y%m%d')
+        date = CUR_DAY.strftime('%Y%m%d')
         file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
         mp3_file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
 
         if MAIN_AUDIO_FILES[row[5]][1] == 'Kiev':
-            file_dir = KIEV_STUDIO_DIR_TODAY
+            file_dir = KIEV_ST_DIR_TODAY
         else:
-            file_dir = KHARKOV_STUDIO_DIR_TODAY
-        full_mp3_file_path = os.path.join(file_dir, mp3_file_name)
+            file_dir = KHAR_ST_DIR_TODAY
+        full_mp3_file_path = file_dir / mp3_file_name
 
     elif 63 > row[0] >= 59:
         """Прямой эфир"""
@@ -221,10 +220,10 @@ def extract_excel_data(row, total_playing_tracks_time):
         mp3_file_name = MAIN_AUDIO_FILES[row[5]][0].format(date)
 
         if MAIN_AUDIO_FILES[row[5]][1] == 'Kiev':
-            file_dir = KIEV_STUDIO_DIR_TOMORROW
+            file_dir = KIEV_ST_DIR_TOMORROW
         else:
-            file_dir = KHARKOV_STUDIO_DIR_TOMORROW
-        full_mp3_file_path = os.path.join(file_dir, mp3_file_name)
+            file_dir = KHAR_ST_DIR_TOMORROW
+        full_mp3_file_path = file_dir / mp3_file_name
 
     else:
         """Все остальные случаи, где файл из папки Archive_2018"""
@@ -237,14 +236,14 @@ def extract_excel_data(row, total_playing_tracks_time):
 
         file_name = row[3]
         mp3_file_name = f'{file_name} {file_number}.mp3'.replace('  ', ' ')
-        full_mp3_file_path = os.path.join(MEDIA_DIR, mp3_file_name)
+        full_mp3_file_path = MEDIA_DIR / mp3_file_name
 
     return file_name, full_mp3_file_path
 
 
 def get_mp3_file_length(full_path_to_file):
     """Возвращает длинну MP3 трека в секундах"""
-    if os.path.exists(full_path_to_file):
+    if full_path_to_file.exists():
         mp3_data = MP3(full_path_to_file)
         return int(mp3_data.info.length)
 
@@ -263,7 +262,7 @@ def write_playlist_to_file(playlist_path, file_data):
 
 def main():
     playlist_data = ['#EXTM3U\n']
-    sheet = get_excel_info(FULL_EXCEL_FILE_PATH, EXCEL_PAGE_NAME)
+    sheet = get_excel_info(EXCEL_FILE_PATH, EXCEL_PAGE_NAME)
     total_playing_tracks_time = 0
 
     for row in sheet.iter_rows(min_row=4, max_row=69, max_col=6, values_only=True):
@@ -274,7 +273,7 @@ def main():
         total_playing_tracks_time += mp3_file_length
         playlist_data.append(f'#EXTINF:{mp3_file_length},{file_name}\n{full_mp3_file_path}\n')
 
-    playlist_data.append(f'load {os.path.join(PLAYLIST_DIR, NEXT_PLAYLIST_NAME)}.command')
+    playlist_data.append(f'load {PLAYLIST_DIR / NEXT_PLAYLIST_NAME}.command')
 
     write_playlist_to_file(FULL_PLAYLIST_PATH, playlist_data)
 
