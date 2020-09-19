@@ -26,7 +26,6 @@ MEDIA_DIR = BASE_DIR / 'Archive_2018'
 CONFIG_DIR = BASE_DIR / 'Playlist_auto_generator'
 PLAYLIST_DIR = ROOT / 'Playlist Radioboss'
 DO_15_MIN_DIR = MEDIA_DIR / 'domashniy ochag 15 min'
-print(DO_15_MIN_DIR)
 
 KIEV_ST_DIR_TODAY = BASE_DIR / 'Kievskaya Studia' / f'!{CUR_DAY.strftime("%m %Y")}'
 KIEV_ST_DIR_TOMORROW = BASE_DIR / 'Kievskaya Studia' / f'!{NEXT_DAY.strftime("%m %Y")}'
