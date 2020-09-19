@@ -173,7 +173,8 @@ def get_excel_info(file_name, excel_page_name):
 
 def get_muzblock_with_needed_length(row, total_playing_tracks_time):
     """Выбрать самый подходящий музблок"""
-    track_end_time = datetime.timedelta(hours=row[2].hour, minutes=row[2].minute)
+    hours, minutes = 23, 59 if row[2] == datetime.time(0, 0) else row[2].hour, row[2].minute
+    track_end_time = datetime.timedelta(hours=hours, minutes=minutes)
     current_playing_track_time = datetime.timedelta(seconds=total_playing_tracks_time)
     muzblock_needed_length = int((track_end_time - current_playing_track_time).total_seconds())
     track = min(MUZBLOCKS, key=lambda x: abs(x - muzblock_needed_length))
