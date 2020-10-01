@@ -2,8 +2,8 @@ import re
 import datetime as dt
 from pathlib import Path
 
-# BASE_DIR = Path('D:') / 'Playlist Raioboss'
-BASE_DIR = Path('.')
+BASE_DIR = Path('D:') / 'Playlist Raioboss'
+# BASE_DIR = Path('.')
 files = list(BASE_DIR.glob('*.m3u8'))
 for file_name in files:
     file_length = 0
