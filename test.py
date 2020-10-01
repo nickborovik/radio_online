@@ -65,7 +65,7 @@ def get_playlist_length():
 def get_muzblock_length():
     for muzblock in MUZBLOCKS:
         mp3 = MP3(ARCHIVE_DIR / muzblock)
-        print(int(mp3.info.length))
+        print(int(mp3.info.length), muzblock)
 
 
 if __name__ == '__main__':
