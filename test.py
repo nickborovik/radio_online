@@ -70,5 +70,5 @@ def get_muzblock_length():
 
 if __name__ == '__main__':
     get_playlist_length()
-    print('-----')
-    get_muzblock_length()
+    # print('-----')
+    # get_muzblock_length()
