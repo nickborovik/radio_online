@@ -259,7 +259,7 @@ def main():
     tracks_time_total = 0
 
     for row in sheet.iter_rows(min_row=4, max_row=69, max_col=6, values_only=True):
-        if not any((row[3], row[4], row[5])):
+        if not any(row[3:6]) or (row[3] == 'Live' and datetime.date.today().weekday() == 6):
             continue
         file_name, file_path = get_excel_data(row, tracks_time_total)
         file_duration = get_file_duration(file_path)
