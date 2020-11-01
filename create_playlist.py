@@ -1,4 +1,3 @@
-import datetime
 import smtplib
 from pathlib import Path
 from configparser import ConfigParser
@@ -7,14 +6,15 @@ from mutagen.mp3 import MP3
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from datetime import date, time, timedelta
 
 # STATIC SETTINGS
 
 # DATES
 
-CUR_DAY = datetime.datetime.today().date()
-TM_DAY = CUR_DAY + datetime.timedelta(days=1)
-AT_DAY = TM_DAY + datetime.timedelta(days=1)
+CUR_DAY = date.today()
+TM_DAY = CUR_DAY + timedelta(days=1)
+AT_DAY = TM_DAY + timedelta(days=1)
 
 MONTH = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
          'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь']
@@ -172,9 +172,9 @@ def get_excel_sheet(file_name, excel_page_name):
 
 def get_muzblock(row, tracks_time_total):
     """Выбрать самый подходящий музблок"""
-    h, m, s = (23, 59, 59) if row[2] == datetime.time(0, 0) else (row[2].hour, row[2].minute, 0)
-    track_end_time = datetime.timedelta(hours=h, minutes=m, seconds=s)
-    tracks_time = datetime.timedelta(seconds=tracks_time_total)
+    h, m, s = (23, 59, 59) if row[2] == time(0, 0) else (row[2].hour, row[2].minute, 0)
+    track_end_time = timedelta(hours=h, minutes=m, seconds=s)
+    tracks_time = timedelta(seconds=tracks_time_total)
     file_duration = int((track_end_time - tracks_time).total_seconds())
     track = min(MUZBLOCKS, key=lambda x: abs(x - file_duration))
     return MUZBLOCKS[track]
@@ -259,7 +259,7 @@ def main():
     tracks_time_total = 0
 
     for row in sheet.iter_rows(min_row=4, max_row=69, max_col=6, values_only=True):
-        if not any(row[3:6]) or (row[3] == 'Live' and datetime.date.today().weekday() == 6):
+        if not any(row[3:6]) or (row[3] == 'Live' and TM_DAY.weekday() == 0):
             continue
         file_name, file_path = get_excel_data(row, tracks_time_total)
         file_duration = get_file_duration(file_path)
