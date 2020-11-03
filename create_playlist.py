@@ -201,6 +201,12 @@ def get_excel_data(row, tracks_time_total):
         file_name = f'{file_title} {file_num}.mp3'
         file_path = DO_15_DIR / file_name
 
+    elif row[5] == 'Про сімейні цінності':
+        file_num = row[4]
+        file_title = 'Pro simeyni zinnosti'
+        file_name = f'{file_title} {file_num}.mp3'
+        file_path = ARCH_DIR / file_name
+
     elif 30 > row[0] >= 26:
         """Повтор за вчера"""
         date = CUR_DAY.strftime('%Y%m%d')
