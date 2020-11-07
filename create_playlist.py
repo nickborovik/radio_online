@@ -207,6 +207,12 @@ def get_excel_data(row, tracks_time_total):
         file_name = f'{file_title} {file_num}.mp3'
         file_path = ARCH_DIR / file_name
 
+    elif row[3] == 'Live' and TM_DAY.weekday() == 0:
+        file_num = 0
+        file_title = row[3]
+        file_name = f'{file_title} {file_num}.mp3'
+        file_path = ARCH_DIR / file_name
+
     elif 30 > row[0] >= 26:
         """Повтор за вчера"""
         date = CUR_DAY.strftime('%Y%m%d')
@@ -265,7 +271,7 @@ def main():
     tracks_time_total = 0
 
     for row in sheet.iter_rows(min_row=4, max_row=69, max_col=6, values_only=True):
-        if not any(row[3:6]) or (row[3] == 'Live' and TM_DAY.weekday() == 0):
+        if not any(row[3:6]):
             continue
         file_name, file_path = get_excel_data(row, tracks_time_total)
         file_duration = get_file_duration(file_path)
