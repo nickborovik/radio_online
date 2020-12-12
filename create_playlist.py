@@ -232,9 +232,9 @@ def get_excel_data(row, tracks_time_total):
     else:
         """Все остальные случаи, где файл из папки Archive_2018"""
         file_num = str(row[4])
-        if 'Лекция' in data:
+        if 'Лекция' in file_num:
             file_num = file_num.replace('Лекция', 'L')
-        if 'М.В.' in data:
+        if 'М.В.' in file_num:
             file_num = file_num.replace('М.В.', 'M') 
         file_title = row[3]
         file_name = f'{file_title} {file_num}.mp3'.replace('  ', ' ')
