@@ -141,11 +141,11 @@ def send_email_report(subject, body_text):
     host = cfg.get("smtp", "host")
     from_addr = cfg.get("smtp", "from_addr")
     password = cfg.get("smtp", "password")
-    to_emails = cfg.get("smtp", "to_emails").split(',')
+    to_emails = cfg.get("smtp", "to_emails")
 
     msg = MIMEMultipart()
     msg['From'] = from_addr
-    msg['To'] = ','.join(to_emails)
+    msg['To'] = to_emails
     msg['Subject'] = Header(subject)
 
     msg.attach(MIMEText(body_text, 'plain', 'cp1251'))
@@ -153,7 +153,7 @@ def send_email_report(subject, body_text):
     server = smtplib.SMTP_SSL(host, 465)
     server.ehlo()
     server.login(user=from_addr, password=password)
-    server.sendmail(from_addr, to_emails, msg.as_string())
+    server.sendmail(from_addr, [to_emails], msg.as_string())
     server.quit()
 
 
@@ -231,15 +231,11 @@ def get_excel_data(row, tracks_time_total):
 
     else:
         """Все остальные случаи, где файл из папки Archive_2018"""
-        data = str(row[4])
+        file_num = str(row[4])
         if 'Лекция' in data:
-            file_num = data.replace('Лекция', 'L')
+            file_num = file_num.replace('Лекция', 'L')
         elif 'М.В.' in data:
-            file_num = data.replace('М.В.', 'M')
-        else:
-            file_num = data
-
-        file_title = row[3]
+            file_num = file_num.replace('М.В.', 'M') file_title = row[3]
         file_name = f'{file_title} {file_num}.mp3'.replace('  ', ' ')
         file_path = ARCH_DIR / file_name
 
