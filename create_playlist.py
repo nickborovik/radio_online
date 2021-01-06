@@ -141,11 +141,11 @@ def send_email_report(subject, body_text):
     host = cfg.get("smtp", "host")
     from_addr = cfg.get("smtp", "from_addr")
     password = cfg.get("smtp", "password")
-    to_emails = cfg.get("smtp", "to_emails")
+    to_emails = cfg.get("smtp", "to_emails").split(',')
 
     msg = MIMEMultipart()
     msg['From'] = from_addr
-    msg['To'] = to_emails
+    msg['To'] = ','.join(to_emails)
     msg['Subject'] = Header(subject)
 
     msg.attach(MIMEText(body_text, 'plain', 'cp1251'))
@@ -153,7 +153,7 @@ def send_email_report(subject, body_text):
     server = smtplib.SMTP_SSL(host, 465)
     server.ehlo()
     server.login(user=from_addr, password=password)
-    server.sendmail(from_addr, [to_emails], msg.as_string())
+    server.sendmail(from_addr, to_emails, msg.as_string())
     server.quit()
 
 
