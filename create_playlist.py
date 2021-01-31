@@ -256,12 +256,12 @@ def get_file_duration(file_path):
                          f"Проверьте наличие и состояние файла в папке\n{MutagenError}"
             send_email_report(EMAIL_SUBJ, email_text)
             print(f'MP3 файл \n{file_path.absolute()}\nповрежден или не может быть открыт')
-            raise SystemExit
-        except Exception:
-            email_text = f"MP3 файл \n---\n{file_path.absolute()}\n---\nНе найден\nПроверьте наличие файла в папке"
-            send_email_report(EMAIL_SUBJ, email_text)
-            print(f'MP3 файл \n{file_path.absolute()}\nне найден')
-            raise SystemExit
+            raise MutagenError
+
+    email_text = f"MP3 файл \n---\n{file_path.absolute()}\n---\nНе найден\nПроверьте наличие файла в папке"
+    send_email_report(EMAIL_SUBJ, email_text)
+    print(f'MP3 файл \n{file_path.absolute()}\nне найден')
+    raise SystemExit
 
 
 def write_playlist(playlist_path, playlist_data):
