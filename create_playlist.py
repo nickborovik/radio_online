@@ -252,10 +252,10 @@ def get_file_duration(file_path):
             return int(mp3.info.length)
         except MutagenError:
             email_text = f"MP3 файл \n---\n{file_path.absolute()}\n---\n" \
-                         f"Поврежден или не может быть открыт \n" \
-                         f"Проверьте наличие и состояние файла в папке\n{MutagenError}"
+                         f"Поврежден и (или) не может быть открыт \n" \
+                         f"Проверьте состояние файла"
             send_email_report(EMAIL_SUBJ, email_text)
-            print(f'MP3 файл \n{file_path.absolute()}\nповрежден или не может быть открыт')
+            print(f'MP3 файл \n{file_path.absolute()}\nповрежден и (или) не может быть открыт')
             raise MutagenError
 
     email_text = f"MP3 файл \n---\n{file_path.absolute()}\n---\nНе найден\nПроверьте наличие файла в папке"
