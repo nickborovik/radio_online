@@ -2,6 +2,7 @@ import smtplib
 from pathlib import Path
 from configparser import ConfigParser
 from openpyxl import load_workbook
+from mutagen import MutagenError
 from mutagen.mp3 import MP3
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
@@ -246,13 +247,21 @@ def get_excel_data(row, tracks_time_total):
 def get_file_duration(file_path):
     """Возвращает длинну MP3 трека в секундах"""
     if file_path.exists():
-        mp3 = MP3(file_path)
-        return int(mp3.info.length)
-
-    email_text = f"MP3 файл \n---\n{file_path.absolute()}\n---\nНе найден\nПроверьте наличие файла в папке"
-    send_email_report(EMAIL_SUBJ, email_text)
-    print(f'MP3 файл \n{file_path.absolute()}\nне найден')
-    raise SystemExit
+        try:
+            mp3 = MP3(file_path)
+            return int(mp3.info.length)
+        except MutagenError:
+            email_text = f"MP3 файл \n---\n{file_path.absolute()}\n---\n" \
+                         f"Поврежден или не может быть открыт \n" \
+                         f"Проверьте наличие и состояние файла в папке\n{MutagenError}"
+            send_email_report(EMAIL_SUBJ, email_text)
+            print(f'MP3 файл \n{file_path.absolute()}\nповрежден или не может быть открыт')
+            raise SystemExit
+        except Exception:
+            email_text = f"MP3 файл \n---\n{file_path.absolute()}\n---\nНе найден\nПроверьте наличие файла в папке"
+            send_email_report(EMAIL_SUBJ, email_text)
+            print(f'MP3 файл \n{file_path.absolute()}\nне найден')
+            raise SystemExit
 
 
 def write_playlist(playlist_path, playlist_data):
