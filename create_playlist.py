@@ -38,7 +38,7 @@ KHAR_ST_DIR_TOMOR = BASE_DIR / 'KharkovTWR' / '1 SREDNIE VOLNI ONLINE' / f'{TM_D
 
 EXCEL_FILE_NAME = f'{TM_DAY.strftime("%m-%Y")} Расписание онлайн вещания ({MONTH[TM_DAY.month - 1]}).xlsx'
 EXCEL_FILE_PATH = BASE_DIR / EXCEL_FILE_NAME
-EXCEL_PAGE_NAME = f'{TM_DAY.day}.{TM_DAY.strftime("%m")}'
+EXCEL_PAGE_NAME = f'{TM_DAY.strftime("%#d.%m")}'
 
 # PLAYLIST settings
 
@@ -128,7 +128,7 @@ LIVE_FILES = {
 
 # MAIN CODE
 
-def send_email_report(subject, body_text):
+def send_email_report(body_text):
     """Отправка письма в случае ошибки создания плейлиста"""
     config_path = CONF_DIR / "email.ini"
 
@@ -146,8 +146,8 @@ def send_email_report(subject, body_text):
 
     msg = MIMEMultipart()
     msg['From'] = from_addr
-    msg['To'] = ','.join(to_emails)
-    msg['Subject'] = Header(subject)
+    msg['To'] = ', '.join(to_emails)
+    msg['Subject'] = Header(EMAIL_SUBJ)
 
     msg.attach(MIMEText(body_text, 'plain', 'cp1251'))
 
@@ -166,7 +166,7 @@ def get_excel_sheet(file_name, excel_page_name):
         return sheet
 
     body_text = f"Excel файл \n---\n{file_name.absolute()}\n---\nНе найден\nПроверьте файл в папке 'INTERNET RADIO'"
-    send_email_report(EMAIL_SUBJ, body_text)
+    send_email_report(body_text)
     print(f'Excel файл \n{file_name.absolute()}\nне найден')
     raise SystemExit
 
@@ -254,17 +254,17 @@ def get_file_duration(file_path):
             email_text = f"MP3 файл\n---\n{file_path.absolute()}\n---\n" \
                          f"Поврежден и (или) не может быть открыт \n" \
                          f"Проверьте состояние файла"
-            send_email_report(EMAIL_SUBJ, email_text)
+            send_email_report(email_text)
             print(f'MP3 файл \n{file_path.absolute()}\nповрежден и (или) не может быть открыт')
             raise MutagenError
         except Exception:
         	email_text = f"Во время считывания файла\n---\n{file_path.absolute()}\n---\n" \
                          f"Сборщик плейлистов завершил работу\n{Exception}"
-        	send_email_report(EMAIL_SUBJ, email_text)
+        	send_email_report(email_text)
         	raise Exception
 
     email_text = f"MP3 файл \n---\n{file_path.absolute()}\n---\nНе найден\nПроверьте наличие файла в папке"
-    send_email_report(EMAIL_SUBJ, email_text)
+    send_email_report(email_text)
     print(f'MP3 файл \n{file_path.absolute()}\nне найден')
     raise SystemExit
 
