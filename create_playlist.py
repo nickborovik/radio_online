@@ -237,7 +237,7 @@ def get_excel_data(row, tracks_time_total):
             file_num = file_num.replace('Лекция', 'L')
         if 'М.В.' in file_num:
             file_num = file_num.replace('М.В.', 'M')
-        if 'A.M.' in file_num:
+        if 'А.М.' in file_num:
             file_num = file_num.replace('А.М.', 'A')
         file_title = row[3]
         file_name = f'{file_title} {file_num}.mp3'.replace('  ', ' ')
