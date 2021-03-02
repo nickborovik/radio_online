@@ -50,7 +50,8 @@ TM_PLAYLIST_PATH = PLAYLIST_DIR / TM_PLAYLIST_NAME
 
 # MISTAKE REPORT settings
 
-EMAIL_SUBJ = f"Плейлист {CUR_PLAYLIST_NAME} для онлайн радио ТМР не был создан"
+PL_NOT_DONE_SUBJECT = f"Плейлист {CUR_PLAYLIST_NAME} для онлайн радио ТМР не был создан"
+PL_DURATION_SUBJECT = f"Длительность плейлиста {CUR_PLAYLIST_NAME} свыше 24 часов и 10 минут"
 
 # MP3 FILES
 
@@ -128,7 +129,7 @@ LIVE_FILES = {
 
 # MAIN CODE
 
-def send_email_report(body_text):
+def send_email_report(subject, body_text):
     """Отправка письма в случае ошибки создания плейлиста"""
     config_path = CONF_DIR / "email.ini"
 
@@ -147,7 +148,7 @@ def send_email_report(body_text):
     msg = MIMEMultipart()
     msg['From'] = from_addr
     msg['To'] = ', '.join(to_emails)
-    msg['Subject'] = Header(EMAIL_SUBJ)
+    msg['Subject'] = Header(subject)
 
     msg.attach(MIMEText(body_text, 'plain', 'cp1251'))
 
@@ -166,7 +167,7 @@ def get_excel_sheet(file_name, excel_page_name):
         return sheet
 
     body_text = f"Excel файл \n---\n{file_name.absolute()}\n---\nНе найден\nПроверьте файл в папке 'INTERNET RADIO'"
-    send_email_report(body_text)
+    send_email_report(PL_NOT_DONE_SUBJECT, body_text)
     print(f'Excel файл \n{file_name.absolute()}\nне найден')
     raise SystemExit
 
@@ -266,7 +267,7 @@ def get_file_duration(file_path):
         	raise Exception
 
     email_text = f"MP3 файл \n---\n{file_path.absolute()}\n---\nНе найден\nПроверьте наличие файла в папке"
-    send_email_report(email_text)
+    send_email_report(PL_NOT_DONE_SUBJECT, email_text)
     print(f'MP3 файл \n{file_path.absolute()}\nне найден')
     raise SystemExit
 
@@ -293,6 +294,12 @@ def main():
 
     playlist_data.append(f'load {TM_PLAYLIST_PATH}.command')
     write_playlist(CUR_PLAYLIST_PATH, playlist_data)
+
+    """Проверить длительность плейлиста"""
+    if tracks_time_total > 87000:
+        email_text = f"Плейлист\n---\n{CUR_PLAYLIST_NAME}\n---\nсобран, но его продолжительность больше чем 24 часа 10 минут"
+        print(email_text)
+        send_email_report(PL_DURATION_SUBJECT, email_text)
 
 
 if __name__ == '__main__':
