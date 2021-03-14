@@ -1,3 +1,4 @@
+import sys
 import smtplib
 from pathlib import Path
 from configparser import ConfigParser
@@ -7,13 +8,13 @@ from mutagen.mp3 import MP3
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from datetime import date, time, timedelta
+from datetime import datetime, date, time, timedelta
 
 # STATIC SETTINGS
 
 # DATES
 
-CUR_DAY = date.today()
+CUR_DAY = datetime.strptime(sys.argv[1], '%d.%m.%Y').date()
 TM_DAY = CUR_DAY + timedelta(days=1)
 AT_DAY = TM_DAY + timedelta(days=1)
 
