@@ -209,11 +209,15 @@ def get_excel_data(row, tracks_time_total):
         file_name = f'{file_title} {file_num}.mp3'
         file_path = ARCH_DIR / file_name
 
-    # elif row[3] == 'Live' and TM_DAY.weekday() == 0:
-    #     file_num = 0
-    #     file_title = row[3]
-    #     file_name = f'{file_title} {file_num}.mp3'
-    #     file_path = ARCH_DIR / file_name
+    elif row[3] == 'Live':
+        file_title = row[3]
+        file_num = row[4]
+        file_name = f'{file_title} {file_num}.mp3'
+        file_path = ARCH_DIR / file_name
+        if not file_path.exists():
+            file_num = 0
+            file_name = f'{file_title} {file_num}.mp3'
+            file_path = ARCH_DIR / file_name
 
     elif 30 > row[0] >= 26:
         """Повтор за вчера"""
