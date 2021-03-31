@@ -168,9 +168,11 @@ def get_excel_sheet(file_name, excel_page_name):
         sheet = workbook[excel_page_name]
         return sheet
 
-    body_text = f"Excel файл \n---\n{file_name.absolute()}\n---\nНе найден\nПроверьте файл в папке 'INTERNET RADIO'"
-    send_email_report(PL_NOT_DONE_SUBJECT, body_text)
-    print(f'Excel файл \n{file_name.absolute()}\nне найден')
+    email_text = f"Excel файл \n" \
+                 f"{file_name.absolute()}\n" \
+                 f"Не найден, проверьте файл в папке 'INTERNET RADIO'"
+    send_email_report(PL_NOT_DONE_SUBJECT, email_text)
+    print(email_text)
     raise SystemExit
 
 
@@ -224,8 +226,8 @@ def get_excel_data(row, tracks_time_total):
     elif 30 > row[0] >= 26:
         """Повтор за вчера"""
         if row[5] not in LIVE_FILES:
-            email_text = f"Обнаружена новая программа в расписании!\n" 
-                         f"Нужно сообщить программисту о добавлении предачи:\n"
+            email_text = f"Обнаружена новая программа в расписании!\n" \
+                         f"Нужно сообщить программисту о добавлении предачи:\n" \
                          f"{row[5]}"
             send_email_report(PL_NOT_DONE_SUBJECT, email_text)
         date = CUR_DAY.strftime('%Y%m%d')
@@ -237,8 +239,8 @@ def get_excel_data(row, tracks_time_total):
     elif 63 > row[0] >= 59:
         """Прямой эфир"""
         if row[5] not in LIVE_FILES:
-            email_text = f"Обнаружена новая программа в расписании!\n" 
-                         f"Нужно сообщить программисту о добавлении предачи:\n"
+            email_text = f"Обнаружена новая программа в расписании!\n" \
+                         f"Нужно сообщить программисту о добавлении предачи:\n" \
                          f"{row[5]}"
             send_email_report(PL_NOT_DONE_SUBJECT, email_text)
         date = TM_DAY.strftime('%Y%m%d')
@@ -270,11 +272,12 @@ def get_file_duration(file_path):
             mp3 = MP3(file_path)
             return int(mp3.info.length)
         except MutagenError:
-            email_text = f"MP3 файл\n---\n{file_path.absolute()}\n---\n" \
-                         f"Поврежден и (или) не может быть открыт \n" \
+            email_text = f"MP3 файл\n" \
+                         f"{file_path.absolute()}\n" \
+                         f"Поврежден и (или) не может быть открыт\n" \
                          f"Проверьте состояние файла"
             send_email_report(PL_NOT_DONE_SUBJECT, email_text)
-            print(f'MP3 файл \n{file_path.absolute()}\nповрежден и (или) не может быть открыт')
+            print(email_text)
             raise MutagenError
         except Exception:
         	email_text = f"Во время считывания файла\n---\n{file_path.absolute()}\n---\n" \
@@ -282,9 +285,11 @@ def get_file_duration(file_path):
         	send_email_report(PL_NOT_DONE_SUBJECT, email_text)
         	raise Exception
 
-    email_text = f"MP3 файл \n---\n{file_path.absolute()}\n---\nНе найден\nПроверьте наличие файла в папке"
+    email_text = f"MP3 файл\n" \
+                 f"{file_path.absolute()}\n" \
+                 f"Не найден, проверьте наличие файла в папке"
+    print(email_text)
     send_email_report(PL_NOT_DONE_SUBJECT, email_text)
-    print(f'MP3 файл \n{file_path.absolute()}\nне найден')
     raise SystemExit
 
 
@@ -292,7 +297,8 @@ def write_playlist(playlist_path, playlist_data):
     """Записать плейлист в файл"""
     with open(playlist_path, 'w') as write_file:
         write_file.writelines(playlist_data)
-    print(f'Плейлист на {TM_DAY.strftime("%d.%m.%Y")} готов и находится в папке \n{PLAYLIST_DIR.absolute()}')
+    print(f'Плейлист на {TM_DAY.strftime("%d.%m.%Y")} готов и находится в папке\n'
+          f'{PLAYLIST_DIR.absolute()}')
 
 
 def main():
@@ -313,7 +319,9 @@ def main():
 
     """Проверить длительность плейлиста"""
     if tracks_time_total > 87000:
-        email_text = f"Плейлист\n---\n{CUR_PLAYLIST_NAME}\n---\nсобран, но его продолжительность больше чем 24 часа 10 минут"
+        email_text = f"Плейлист\n" \
+                     f"{CUR_PLAYLIST_NAME}\n" \
+                     f"собран, но его продолжительность больше чем 24 часа 10 минут"
         print(email_text)
         send_email_report(PL_DURATION_SUBJECT, email_text)
 
