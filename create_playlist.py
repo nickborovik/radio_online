@@ -104,6 +104,7 @@ LIVE_FILES = {
     '900 секунд доброты': ['RUS_KIND_{}.mp3', 'Kharkov'],
     'БА': ['RUS_BST_{}.mp3', 'Kiev'],
     'Библейские искатели': ['RUS_TSK_{}.mp3', 'Kiev'],
+    'Блокнот миссионера': ['RUS_MC_{}.mp3', 'Kiev'],
     'Вивчаємо Біблію разом': ['UKR_SBT_{}.mp3', 'Kharkov'],
     'ВЦП': ['UKR_PRC_{}.mp3', 'Kiev'],
     'Герои': ['RUS_CA_{}.mp3', 'Kharkov'],
@@ -222,6 +223,11 @@ def get_excel_data(row, tracks_time_total):
 
     elif 30 > row[0] >= 26:
         """Повтор за вчера"""
+        if row[5] not in LIVE_FILES:
+            email_text = f"Обнаружена новая программа в расписании!\n" 
+                         f"Нужно сообщить программисту о добавлении предачи:\n"
+                         f"{row[5]}"
+            send_email_report(PL_NOT_DONE_SUBJECT, email_text)
         date = CUR_DAY.strftime('%Y%m%d')
         file_title = LIVE_FILES[row[5]][0].format(date)
         file_name = LIVE_FILES[row[5]][0].format(date)
@@ -230,6 +236,11 @@ def get_excel_data(row, tracks_time_total):
 
     elif 63 > row[0] >= 59:
         """Прямой эфир"""
+        if row[5] not in LIVE_FILES:
+            email_text = f"Обнаружена новая программа в расписании!\n" 
+                         f"Нужно сообщить программисту о добавлении предачи:\n"
+                         f"{row[5]}"
+            send_email_report(PL_NOT_DONE_SUBJECT, email_text)
         date = TM_DAY.strftime('%Y%m%d')
         file_title = LIVE_FILES[row[5]][0].format(date)
         file_name = LIVE_FILES[row[5]][0].format(date)
@@ -262,13 +273,13 @@ def get_file_duration(file_path):
             email_text = f"MP3 файл\n---\n{file_path.absolute()}\n---\n" \
                          f"Поврежден и (или) не может быть открыт \n" \
                          f"Проверьте состояние файла"
-            send_email_report(email_text)
+            send_email_report(PL_NOT_DONE_SUBJECT, email_text)
             print(f'MP3 файл \n{file_path.absolute()}\nповрежден и (или) не может быть открыт')
             raise MutagenError
         except Exception:
         	email_text = f"Во время считывания файла\n---\n{file_path.absolute()}\n---\n" \
                          f"Сборщик плейлистов завершил работу\n{Exception}"
-        	send_email_report(email_text)
+        	send_email_report(PL_NOT_DONE_SUBJECT, email_text)
         	raise Exception
 
     email_text = f"MP3 файл \n---\n{file_path.absolute()}\n---\nНе найден\nПроверьте наличие файла в папке"
