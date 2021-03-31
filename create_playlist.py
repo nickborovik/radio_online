@@ -228,8 +228,10 @@ def get_excel_data(row, tracks_time_total):
         if row[5] not in LIVE_FILES:
             email_text = f"Обнаружена новая программа в расписании!\n" \
                          f"Нужно сообщить программисту о добавлении предачи:\n" \
-                         f"{row[5]}"
+                         f"'{row[5]}'"
+            print(email_text)
             send_email_report(PL_NOT_DONE_SUBJECT, email_text)
+            raise SystemExit
         date = CUR_DAY.strftime('%Y%m%d')
         file_title = LIVE_FILES[row[5]][0].format(date)
         file_name = LIVE_FILES[row[5]][0].format(date)
@@ -241,8 +243,10 @@ def get_excel_data(row, tracks_time_total):
         if row[5] not in LIVE_FILES:
             email_text = f"Обнаружена новая программа в расписании!\n" \
                          f"Нужно сообщить программисту о добавлении предачи:\n" \
-                         f"{row[5]}"
+                         f"'{row[5]}'"
+            print(email_text)
             send_email_report(PL_NOT_DONE_SUBJECT, email_text)
+            raise SystemExit
         date = TM_DAY.strftime('%Y%m%d')
         file_title = LIVE_FILES[row[5]][0].format(date)
         file_name = LIVE_FILES[row[5]][0].format(date)
