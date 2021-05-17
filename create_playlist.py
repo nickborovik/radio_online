@@ -223,7 +223,7 @@ def get_excel_data(row, tracks_time_total):
             file_name = f'{file_title} {file_num}.mp3'
             file_path = ARCH_DIR / file_name
 
-    elif 30 > row[0] >= 26:
+    elif time(10, 0) > row[1] >= time(8, 30):
         """Повтор за вчера"""
         if row[5] not in LIVE_FILES:
             email_text = f"Обнаружена новая программа в расписании!\n" \
@@ -238,7 +238,7 @@ def get_excel_data(row, tracks_time_total):
         file_dir = KIEV_ST_DIR_TODAY if LIVE_FILES[row[5]][1] == 'Kiev' else KHAR_ST_DIR_TODAY
         file_path = file_dir / file_name
 
-    elif 63 > row[0] >= 59:
+    elif time(22, 0) > row[1] >= time(20, 30):
         """Прямой эфир"""
         if row[5] not in LIVE_FILES:
             email_text = f"Обнаружена новая программа в расписании!\n" \
@@ -284,10 +284,10 @@ def get_file_duration(file_path):
             print(email_text)
             raise MutagenError
         except Exception:
-        	email_text = f"Во время считывания файла\n---\n{file_path.absolute()}\n---\n" \
+            email_text = f"Во время считывания файла\n---\n{file_path.absolute()}\n---\n" \
                          f"Сборщик плейлистов завершил работу\n{Exception}"
-        	send_email_report(PL_NOT_DONE_SUBJECT, email_text)
-        	raise Exception
+            send_email_report(PL_NOT_DONE_SUBJECT, email_text)
+            raise Exception
 
     email_text = f"MP3 файл\n" \
                  f"{file_path.absolute()}\n" \
@@ -310,7 +310,7 @@ def main():
     sheet = get_excel_sheet(EXCEL_FILE_PATH, EXCEL_PAGE_NAME)
     tracks_time_total = 0
 
-    for row in sheet.iter_rows(min_row=4, max_row=69, max_col=6, values_only=True):
+    for row in sheet.iter_rows(min_row=4, max_col=6, values_only=True):
         if not any(row[3:6]):
             continue
         file_name, file_path = get_excel_data(row, tracks_time_total)
