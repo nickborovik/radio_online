@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import smtplib
 from pathlib import Path
@@ -8,7 +9,7 @@ from mutagen.mp3 import MP3
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from datetime import datetime, date, time, timedelta
+from datetime import datetime, time, timedelta
 
 # STATIC SETTINGS
 
@@ -53,6 +54,9 @@ TM_PLAYLIST_PATH = PLAYLIST_DIR / TM_PLAYLIST_NAME
 
 PL_NOT_DONE_SUBJECT = f"Плейлист {CUR_PLAYLIST_NAME} для онлайн радио ТМР не был создан"
 PL_DURATION_SUBJECT = f"Длительность плейлиста {CUR_PLAYLIST_NAME} свыше 24 часов и 10 минут"
+NEW_LIVE_PROGRAM_MESSAGE = "Обнаружена новая программа в расписании!\n" \
+                           "Нужно сообщить программисту о добавлении предачи:\n" \
+                           "{}"
 
 # MP3 FILES
 
@@ -226,11 +230,9 @@ def get_excel_data(row, tracks_time_total):
     elif time(10, 0) > row[1] >= time(8, 30):
         """Повтор за вчера"""
         if row[5] not in LIVE_FILES:
-            email_text = f"Обнаружена новая программа в расписании!\n" \
-                         f"Нужно сообщить программисту о добавлении предачи:\n" \
-                         f"'{row[5]}'"
-            print(email_text)
-            send_email_report(PL_NOT_DONE_SUBJECT, email_text)
+            error = NEW_LIVE_PROGRAM_MESSAGE.format(row[5])
+            print(error)
+            send_email_report(PL_NOT_DONE_SUBJECT, error)
             raise SystemExit
         date = CUR_DAY.strftime('%Y%m%d')
         file_title = LIVE_FILES[row[5]][0].format(date)
@@ -241,11 +243,9 @@ def get_excel_data(row, tracks_time_total):
     elif time(22, 0) > row[1] >= time(20, 30):
         """Прямой эфир"""
         if row[5] not in LIVE_FILES:
-            email_text = f"Обнаружена новая программа в расписании!\n" \
-                         f"Нужно сообщить программисту о добавлении предачи:\n" \
-                         f"'{row[5]}'"
-            print(email_text)
-            send_email_report(PL_NOT_DONE_SUBJECT, email_text)
+            error = NEW_LIVE_PROGRAM_MESSAGE.format(row[5])
+            print(error)
+            send_email_report(PL_NOT_DONE_SUBJECT, error)
             raise SystemExit
         date = TM_DAY.strftime('%Y%m%d')
         file_title = LIVE_FILES[row[5]][0].format(date)
@@ -322,10 +322,11 @@ def main():
     write_playlist(CUR_PLAYLIST_PATH, playlist_data)
 
     """Проверить длительность плейлиста"""
-    if tracks_time_total > 87000:
+    if 84600 > tracks_time_total > 87000:
+        pl_time = str(timedelta(seconds=tracks_time_total))
         email_text = f"Плейлист\n" \
                      f"{CUR_PLAYLIST_NAME}\n" \
-                     f"собран, но его продолжительность больше чем 24 часа 10 минут"
+                     f"собран, но его продолжительность {pl_time}"
         print(email_text)
         send_email_report(PL_DURATION_SUBJECT, email_text)
 
