@@ -273,17 +273,17 @@ def get_excel_data(row, tracks_time_total):
 def get_file_duration(file_path, list_duration):
     """Возвращает длинну MP3 трека в секундах"""
     if file_path.exists():
-        errors = []
+        error = ''
         try:
             mp3 = MP3(file_path)
             mp3_duration = int(mp3.info.length)
             track_duration = timedelta(seconds=mp3_duration)
             length = (datetime.combine(date.today(), list_duration) - track_duration).time()
             if time(0, 5) < length < time(23, 55):
-                errors.append(f'Трек: {file_path}\n'
-                              f'Время в списке: {list_duration}\n'
-                              f'Время трека: {track_duration}')
-            return int(mp3.info.length), errors
+                error = f'Трек: {file_path}\n' \
+                        f'Время в списке: {list_duration}\n' \
+                        f'Время трека: {track_duration}'
+            return int(mp3.info.length), error
         except MutagenError:
             email_text = f"MP3 файл\n" \
                          f"{file_path.absolute()}\n" \
@@ -318,12 +318,15 @@ def main():
     playlist_data = ['#EXTM3U\n']
     sheet = get_excel_sheet(EXCEL_FILE_PATH, EXCEL_PAGE_NAME)
     tracks_time_total = 0
+    errors = []
 
     for row in sheet.iter_rows(min_row=4, max_col=7, values_only=True):
         if not any(row[3:6]):
             continue
         file_name, file_path = get_excel_data(row, tracks_time_total)
-        file_duration, errors = get_file_duration(file_path, row[6])
+        file_duration, error = get_file_duration(file_path, row[6])
+        if error:
+            errors.append(error)
         tracks_time_total += file_duration
         playlist_data.append(f'#EXTINF:{file_duration},{file_name}\n{file_path}\n')
 
