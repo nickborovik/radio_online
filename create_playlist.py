@@ -9,7 +9,7 @@ from mutagen.mp3 import MP3
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from datetime import datetime, time, timedelta
+from datetime import datetime, date, time, timedelta
 
 # STATIC SETTINGS
 
@@ -54,6 +54,7 @@ TM_PLAYLIST_PATH = PLAYLIST_DIR / TM_PLAYLIST_NAME
 
 PL_NOT_DONE_SUBJECT = f"Плейлист {CUR_PLAYLIST_NAME} для онлайн радио ТМР не был создан"
 PL_DURATION_SUBJECT = f"Длительность плейлиста {CUR_PLAYLIST_NAME} свыше 24 часов и 10 минут"
+PL_TRACKS_TIME = f"Серьезное отклонение передач по времени в плейлисте {CUR_PLAYLIST_NAME}"
 NEW_LIVE_PROGRAM_MESSAGE = "Обнаружена новая программа в расписании!\n" \
                            "Нужно сообщить программисту о добавлении предачи:\n" \
                            "{}"
@@ -269,12 +270,20 @@ def get_excel_data(row, tracks_time_total):
     return file_title, file_path
 
 
-def get_file_duration(file_path):
+def get_file_duration(file_path, list_duration):
     """Возвращает длинну MP3 трека в секундах"""
     if file_path.exists():
+        errors = []
         try:
             mp3 = MP3(file_path)
-            return int(mp3.info.length)
+            mp3_duration = int(mp3.info.length)
+            track_duration = timedelta(seconds=mp3_duration)
+            length = (datetime.combine(date.today(), list_duration) - track_duration).time()
+            if time(0, 5) < length < time(23, 55):
+                errors.append(f'Трек: {file_path}\n'
+                              f'Время в списке: {list_duration}\n'
+                              f'Время трека: {track_duration}')
+            return int(mp3.info.length), errors
         except MutagenError:
             email_text = f"MP3 файл\n" \
                          f"{file_path.absolute()}\n" \
@@ -310,11 +319,11 @@ def main():
     sheet = get_excel_sheet(EXCEL_FILE_PATH, EXCEL_PAGE_NAME)
     tracks_time_total = 0
 
-    for row in sheet.iter_rows(min_row=4, max_col=6, values_only=True):
+    for row in sheet.iter_rows(min_row=4, max_col=7, values_only=True):
         if not any(row[3:6]):
             continue
         file_name, file_path = get_excel_data(row, tracks_time_total)
-        file_duration = get_file_duration(file_path)
+        file_duration, errors = get_file_duration(file_path, row[6])
         tracks_time_total += file_duration
         playlist_data.append(f'#EXTINF:{file_duration},{file_name}\n{file_path}\n')
 
@@ -329,6 +338,11 @@ def main():
                      f"собран, но его продолжительность {pl_time}"
         print(email_text)
         send_email_report(PL_DURATION_SUBJECT, email_text)
+
+    if errors:
+        email_text = 'Следующие треки не совпадают по времени\n' + '\n'.join(errors)
+        print(email_text)
+        send_email_report(PL_TRACKS_TIME, email_text)
 
 
 if __name__ == '__main__':
