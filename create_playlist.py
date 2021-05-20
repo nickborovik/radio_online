@@ -325,7 +325,7 @@ def main():
             continue
         file_name, file_path = get_excel_data(row, tracks_time_total)
         file_duration, error = get_file_duration(file_path, row[6])
-        if error:
+        if error and row[5] != 'муз.блок':
             errors.append(error)
         tracks_time_total += file_duration
         playlist_data.append(f'#EXTINF:{file_duration},{file_name}\n{file_path}\n')
