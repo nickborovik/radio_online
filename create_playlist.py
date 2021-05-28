@@ -270,7 +270,7 @@ def get_excel_data(row, tracks_time_total):
     return file_title, file_path
 
 
-def get_file_duration(file_path, list_duration):
+def get_file_duration(file_path, list_duration, time_start):
     """Возвращает длинну MP3 трека в секундах"""
     if file_path.exists():
         error = ''
@@ -300,7 +300,9 @@ def get_file_duration(file_path, list_duration):
 
     email_text = f"MP3 файл\n" \
                  f"{file_path.absolute()}\n" \
-                 f"Не найден, проверьте наличие файла в папке"
+                 f"Не найден, проверьте наличие файла в папке\n" \
+                 f"Страница в файле EXCEL: {EXCEL_PAGE_NAME}\n" \
+                 f"Время начала передачи: {time_start}"
     print(email_text)
     send_email_report(PL_NOT_DONE_SUBJECT, email_text)
     raise SystemExit
@@ -324,7 +326,7 @@ def main():
         if not any(row[3:6]):
             continue
         file_name, file_path = get_excel_data(row, tracks_time_total)
-        file_duration, error = get_file_duration(file_path, row[6])
+        file_duration, error = get_file_duration(file_path, row[6], row[1])
         if error and row[5] != 'муз.блок':
             errors.append(error)
         tracks_time_total += file_duration
