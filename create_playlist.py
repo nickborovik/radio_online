@@ -170,8 +170,17 @@ def get_excel_sheet(file_name, excel_page_name):
     """Возвращает лист с книги Excel"""
     if file_name.exists():
         workbook = load_workbook(file_name, data_only=True)
-        sheet = workbook[excel_page_name]
-        return sheet
+        try:
+            sheet = workbook[excel_page_name]
+            return sheet
+        except:
+            email_text = f"Страница '{excel_page_name}' не найдена в Excel файле\n" \
+                         f"{file_name.absolute()}\n" \
+                         f"Проверьте Excel файл на соответствие нумерации страниц."
+            print(email_text)
+            send_email_report(PL_NOT_DONE_SUBJECT, email_text)
+            raise SystemExit
+
 
     email_text = f"Excel файл \n" \
                  f"{file_name.absolute()}\n" \
@@ -228,7 +237,7 @@ def get_excel_data(row, tracks_time_total):
             file_name = f'{file_title} {file_num}.mp3'
             file_path = ARCH_DIR / file_name
 
-    elif time(10, 0) > row[1] >= time(8, 30):
+    elif time(8, 30) <= row[1] < time(10, 0):
         """Повтор за вчера"""
         if row[5] not in LIVE_FILES:
             error = NEW_LIVE_PROGRAM_MESSAGE.format(row[5])
@@ -241,7 +250,7 @@ def get_excel_data(row, tracks_time_total):
         file_dir = KIEV_ST_DIR_TODAY if LIVE_FILES[row[5]][1] == 'Kiev' else KHAR_ST_DIR_TODAY
         file_path = file_dir / file_name
 
-    elif time(22, 0) > row[1] >= time(20, 30):
+    elif time(20, 30) <= row[1] < time(22, 0):
         """Прямой эфир"""
         if row[5] not in LIVE_FILES:
             error = NEW_LIVE_PROGRAM_MESSAGE.format(row[5])
@@ -293,7 +302,8 @@ def get_file_duration(file_path, list_duration, time_start):
             print(email_text)
             raise MutagenError
         except Exception:
-            email_text = f"Во время считывания файла\n---\n{file_path.absolute()}\n---\n" \
+            email_text = f"Во время считывания файла\n" \
+                         f"{file_path.absolute()}\n" \
                          f"Сборщик плейлистов завершил работу\n{Exception}"
             send_email_report(PL_NOT_DONE_SUBJECT, email_text)
             raise Exception
