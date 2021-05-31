@@ -1,0 +1,1 @@
+"D:\INTERNET RADIO\Playlist_auto_generator\venv\Scripts\python" "D:\INTERNET RADIO\Playlist_auto_generator\create_playlist.py" %date%
